@@ -1,0 +1,61 @@
+<!-- <hr> -->
+<label for="post">Enter your post:</label>
+
+<!-- -- Solution 1 with Markers --
+<textarea #postInput id="post" name="post" rows="6" cols="50" [value]='newPostContent'></textarea>
+<button (click)="onAddPost(postInput)">Save post</button>
+-->
+
+<!-- -- Solution 2 with NgModel double binding --
+<textarea id="post" name="post" rows="6" cols="50" [(ngModel)]="enteredPostValue"></textarea>
+<br>
+<button (click)="onAddPostValue()">Save post</button>
+-->
+
+<!-- -- Solution 3 with Angular Material (matInput form)
+<mat-card>
+  <mat-form-field>
+    <textarea matInput id="post" name="post" rows="6" cols="50" [(ngModel)]="enteredPostValue"></textarea>
+  </mat-form-field>
+  <div style="margin-right: 100%">
+    <button mat-raised-button color="primary" (click)="onAddPostValue3()">Save post</button>
+  </div>
+</mat-card>
+-->
+<!--
+<p>{{ newPostContent }}</p>
+-->
+
+<!-- -- Solution 4 with Angular Material (2 matInput forms : title (input) and content (textarea) --
+<mat-card>
+  <mat-form-field>
+    <input matInput id="postTitle" type="text" [(ngModel)]="enteredPostTitle" />
+  </mat-form-field>
+  <mat-form-field>
+    <textarea matInput id="postContent" name="post" rows="6" cols="50" [(ngModel)]="enteredPostContent"></textarea>
+  </mat-form-field>
+  <div style="margin-right: 100%">
+    <button mat-raised-button color="primary" (click)="onAddPostValue4()">Save post</button>
+  </div>
+</mat-card>
+-->
+
+
+<!-- -- Solution 5 with Angular Forms (<form>) and Material -->
+<mat-card>
+  <form (submit)="onAddPostValue5(postForm)" #postForm="ngForm" >
+    <mat-form-field>
+      <input matInput placeholder="Enter a title: " type="text" name="postTitle" #i="ngModel" ngModel required minlength="5" />
+      <mat-error *ngIf="postForm.getControl(i).invalid">Please enter a Post title</mat-error>
+    </mat-form-field>
+    <mat-form-field>
+      <textarea matInput placeholder="Enter a content: " name="postContent" rows="4" cols="50" #t="ngModel" ngModel required minlength="10"></textarea>
+      <mat-error *ngIf="t.invalid">Please enter a Post content</mat-error>
+    </mat-form-field>
+    <div style="margin-right: 100%">
+      <button mat-raised-button color="primary" type="submit">Save post</button>
+    </div>
+  </form>
+</mat-card>
+
+

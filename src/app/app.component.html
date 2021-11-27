@@ -1,0 +1,19 @@
+
+<app-header></app-header>
+<!--
+<h1>Hello Pascal !</h1>
+-->
+
+<!-- Solutions 4 and 5 with bindings -->
+<main>
+  <app-post-create (postCreated)="onNewCreatedPost($event)"></app-post-create>
+  <app-post-list [postList]="appPosts"></app-post-list>
+</main>
+
+
+<!--
+<main>
+  <app-post-create></app-post-create>
+  <app-post-list></app-post-list>
+</main>
+-->
