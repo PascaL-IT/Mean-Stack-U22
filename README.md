@@ -1,6 +1,5 @@
 # UdemyMeanCourse 
-## by Maximilian Schwarzmüller (Professional Web Developer and Instructor)
-Ref. https://www.udemy.com/course/angular-2-and-nodejs-the-practical-guide/learn/lecture/10416244
+Ref. https://www.udemy.com/course/angular-2-and-nodejs-the-practical-guide/ by Maximilian Schwarzmüller
 
 - Learn how to connect your Angular Frontend to a NodeJS, Express and MongoDB Backend by building a real application
 - Create modern, scalable and high-speed Web Applications with Angular (formerly named Angular 2) and Node.js + Express + MongoDB.
