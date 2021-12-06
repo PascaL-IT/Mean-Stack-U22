@@ -43,14 +43,14 @@
 
 <!-- -- Solution 5 with Angular Forms (<form>) and Material -->
 <mat-card>
-  <form (submit)="onAddPostValue5(postForm)" #postForm="ngForm" >
+  <form (submit)="onAddPostValue6(postForm)" #postForm="ngForm" >
     <mat-form-field>
-      <input matInput placeholder="Enter a title: " type="text" name="postTitle" #i="ngModel" ngModel required minlength="5" />
-      <mat-error *ngIf="postForm.getControl(i).invalid">Please enter a Post title</mat-error>
+      <input matInput placeholder="Post title: " type="text" name="postTitle" #i="ngModel" ngModel required minlength="{{minLengthTitle}}" />
+      <mat-error *ngIf="postForm.getControl(i).invalid">Please enter a valid title (min. {{minLengthTitle}} chars are required)</mat-error>
     </mat-form-field>
     <mat-form-field>
-      <textarea matInput placeholder="Enter a content: " name="postContent" rows="4" cols="50" #t="ngModel" ngModel required minlength="10"></textarea>
-      <mat-error *ngIf="t.invalid">Please enter a Post content</mat-error>
+      <textarea matInput placeholder="Post content: " name="postContent" rows="4" cols="50" #t="ngModel" ngModel required minlength="{{minLengthContent}}"></textarea>
+      <mat-error *ngIf="t.invalid">Please enter a valid content  (min. {{minLengthContent}} chars are required)</mat-error>
     </mat-form-field>
     <div style="margin-right: 100%">
       <button mat-raised-button color="primary" type="submit">Save post</button>

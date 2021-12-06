@@ -10,11 +10,13 @@ import { Post } from "./posts/post-list/post.model";
 export class AppComponent {
   title = 'udemy-mean-course';
 
-  // Solution 4 and 5
+  /*
+  // Solution 4 and 5 with various bindings
   appPosts: Post[] = [];
 
   onNewCreatedPost(post: Post) {
     this.appPosts.push(post);
   };
+  */
 
 }
