@@ -2,11 +2,11 @@
   <mat-expansion-panel *ngFor="let post of postList">
     <mat-expansion-panel-header>{{ post['title'] }}</mat-expansion-panel-header>
     {{ post['content'] }}
+    <mat-action-row>
+      <button mat-button color="primary">EDIT</button>
+      <button mat-button color="warn">DELETE</button>
+    </mat-action-row>
   </mat-expansion-panel>
-  <mat-action-row>
-    <button mat-button color="primary">EDIT</button>
-    <button mat-button color="warn">DELETE</button>
-  </mat-action-row>
 </mat-accordion>
 <br/>
 <p class="mat-body-2" *ngIf="postList.length == 0">No post added yet...</p>
