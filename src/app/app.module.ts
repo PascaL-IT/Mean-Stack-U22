@@ -8,6 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule} from '@angular/material/toolbar';
 import { MatExpansionModule} from '@angular/material/expansion';
+import { HttpClientModule } from '@angular/common/http';
 
 
 // My Application modules
@@ -30,7 +31,8 @@ import { PostListComponent } from './posts/post-list/post-list.component';
     AppRoutingModule,
     BrowserAnimationsModule,
     MatInputModule, MatCardModule, MatButtonModule,
-    MatToolbarModule, MatExpansionModule
+    MatToolbarModule, MatExpansionModule,
+    HttpClientModule
   ],
 
   // providers: [PostsService], // without @Injectable

@@ -28,8 +28,9 @@ export class PostListComponent { // implements OnInit { // }, OnDestroy {
   private postSub: Subscription = new Subscription; // Observer
 
   ngOnInit(): void {
-    this.postList = this.postService.getPosts();
+    // this.postList = this.postService.getPosts();
     // console.log("ngOnInit: " + this.postList);
+    this.postService.getPosts(); // trigger the HTTP request to retrieve JSON data from REST API
     this.postSub = this.postService.getPostsUpdatedListener() // Listener on the Observable
                                    .subscribe( // Observer subscription
                                       (list_of_posts: Post[]) => { this.postList = list_of_posts; }

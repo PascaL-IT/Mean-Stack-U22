@@ -46,7 +46,7 @@
   <form (submit)="onAddPostValue6(postForm)" #postForm="ngForm" >
     <mat-form-field>
       <input matInput placeholder="Post title: " type="text" name="postTitle" #i="ngModel" ngModel required minlength="{{minLengthTitle}}" />
-      <mat-error *ngIf="postForm.getControl(i).invalid">Please enter a valid title (min. {{minLengthTitle}} chars are required)</mat-error>
+      <mat-error *ngIf="i.invalid">Please enter a valid title (min. {{minLengthTitle}} chars are required)</mat-error>
     </mat-form-field>
     <mat-form-field>
       <textarea matInput placeholder="Post content: " name="postContent" rows="4" cols="50" #t="ngModel" ngModel required minlength="{{minLengthContent}}"></textarea>

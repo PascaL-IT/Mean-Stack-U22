@@ -12,7 +12,7 @@ import { PostsService } from "../post-list/posts.service";
 
 export class PostCreateComponent {
 
-  minLengthContent = 20;
+  minLengthContent = 10;
   minLengthTitle = 4;
 
   // Solution 1
@@ -40,11 +40,13 @@ export class PostCreateComponent {
   // Solution 4 (event with @Output)
   enteredPostTitle = '';
   enteredPostContent = '';
+  idPost = '';
   // @Output() postCreated = new EventEmitter<Post>(); // Output binding (solution 4 & 5)
 
   onAddPostValue4() {
     alert("Post created via Solution 4 !")
     const post: Post = {
+      id: this.idPost,
       title: this.enteredPostTitle,
       content: this.enteredPostContent
     };
@@ -58,6 +60,7 @@ export class PostCreateComponent {
       return; // avoid emitting on invalid inputs
     }
     const post: Post = {
+      id: '',
       title: form.value.postTitle,
       content: form.value.postContent
     };
