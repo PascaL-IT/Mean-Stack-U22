@@ -9,17 +9,9 @@ import { Subscription } from "rxjs";
   styleUrls: ["./post-list.component.css"]
 })
 
-export class PostListComponent { // implements OnInit { // }, OnDestroy {
+export class PostListComponent implements OnInit, OnDestroy {
 
   // @Input() postList: Post[] = []; // array of Post model, Input binding (solution 4 & 5)
-
-  /*
-  postList = [
-      { title: "first post" , content: "first message" } ,
-      { title: "second post" , content: "second message" } ,
-      { title: "third post" , content: "third message" }
-    ];
-  */
 
   postList: Post[] = []; // array of Posts consumed via our post service (solution 6)
 
@@ -29,17 +21,21 @@ export class PostListComponent { // implements OnInit { // }, OnDestroy {
 
   ngOnInit(): void {
     // this.postList = this.postService.getPosts();
-    // console.log("ngOnInit: " + this.postList);
     this.postService.getPosts(); // trigger the HTTP request to retrieve JSON data from REST API
     this.postSub = this.postService.getPostsUpdatedListener() // Listener on the Observable
                                    .subscribe( // Observer subscription
                                       (list_of_posts: Post[]) => { this.postList = list_of_posts; }
                                    );
+    console.log("ngOnInit: list of posts size=" + this.postList.length);
   };
 
   ngOnDestroy(): void {
     this.postSub.unsubscribe;
-    console.log("ngOnDestroy");
+    console.log("ngOnDestroy: unsubscribe observer on posts update");
+  }
+
+  onDelete(postID : string) : void {
+    this.postService.deletePost(postID);
   }
 
 }
