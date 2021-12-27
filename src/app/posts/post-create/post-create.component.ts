@@ -1,6 +1,6 @@
-import { Component, Output } from "@angular/core";
-import { EventEmitter } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { NgForm } from "@angular/forms";
+import { ActivatedRoute, ParamMap } from "@angular/router";
 import { Post } from "../post-list/post.model";
 import { PostsService } from "../post-list/posts.service";
 
@@ -10,72 +10,58 @@ import { PostsService } from "../post-list/posts.service";
   styleUrls: ["./post-create.component.css"]
 })
 
-export class PostCreateComponent {
+export class PostCreateComponent implements OnInit {
 
-  minLengthContent = 10;
-  minLengthTitle = 4;
+  public minLengthContent = 10;
+  public minLengthTitle = 4;
+  public pccPost: Post;
 
-  // Solution 1
-  newPostContent = '...'
-  onAddPost(postInput: HTMLTextAreaElement) {
-    alert("Post created via Solution 1 !")
-    // console.log(postInput)
-    // console.dir(postInput)
-    this.newPostContent = postInput.value
+  private mode: string = 'create'; // edit | create
+
+  // Section_5_66 : inject ActivatedRoute to determine the mode (edit|create) on init
+  constructor(public postService: PostsService, public route: ActivatedRoute) {
+    this.pccPost = { id: '' , content: '' , title: '' };
   }
 
-  // Solution 2
-  enteredPostValue = ''
-  onAddPostValue() {
-    alert("Post created via Solution 2 !")
-    this.newPostContent = this.enteredPostValue
+  ngOnInit(): void {
+    console.log("PostCreateComponent - DEBUG: route=" + this.route.toString());
+    this.route.url.subscribe((url) => { this.mode = url[0].path }); // find the mode by analysing the route path
+    this.route.paramMap.subscribe( (paramMap: ParamMap) =>
+      {
+        // Edit mode
+        if (this.mode === 'edit' && paramMap.has('postId')) { // check if Id presents
+          this.pccPost.id = paramMap.get('postId') || ''; // retrieve parameter value
+          this.pccPost = this.postService.getPost(this.pccPost.id); // get existing post from cache memory
+
+        // Creation mode
+        } else if  (this.mode === 'create') {
+          this.pccPost.id = '';
+
+        // Unsupported mode
+        } else {
+          throw new Error("Unsupported mode (either 'edit/:id' or 'create' routes)");
+        }
+      }
+    )
+    console.log("PostCreateComponent - ngOnInit: mode=" + this.mode);
   }
 
-  // Solution 3
-  onAddPostValue3() {
-    alert("Post created via Solution 3 !")
-    this.newPostContent = this.enteredPostValue
-  }
-
-  // Solution 4 (event with @Output)
-  enteredPostTitle = '';
-  enteredPostContent = '';
-  idPost = '';
-  // @Output() postCreated = new EventEmitter<Post>(); // Output binding (solution 4 & 5)
-
-  onAddPostValue4() {
-    alert("Post created via Solution 4 !")
-    const post: Post = {
-      id: this.idPost,
-      title: this.enteredPostTitle,
-      content: this.enteredPostContent
-    };
-    // this.postCreated.emit(post);
-  }
-
-  // Solution 5 (form and event with @Output)
-  onAddPostValue5(form: NgForm) {
-    // alert("Post created via Solution 5 !")
+  // Method called on Save button click
+  onSavePostValue(form: NgForm) {
+    // alert("Post saved on MongoDB !")
     if (form.invalid) {
       return; // avoid emitting on invalid inputs
     }
-    const post: Post = {
-      id: '',
-      title: form.value.postTitle,
-      content: form.value.postContent
-    };
-    // this.postCreated.emit(post);
-  }
 
-  // Solution 6 (form and service via DI)
-  constructor(public postService: PostsService) { }; // dependency injection
+    if (this.mode === 'create') {
+      // save a new post after create
+      this.postService.addPost(form.value.postTitle, form.value.postContent);
 
-  onAddPostValue6(form: NgForm) {
-    // alert("Post created via Solution 6 !")
-    if (form.invalid) {
-      return; // avoid emitting on invalid inputs
+    } else {
+      // save an existing post after edit
+      this.postService.updatePost(this.pccPost.id, form.value.postTitle, form.value.postContent);
     }
-    this.postService.addPost(form.value.postTitle, form.value.postContent);
+
     form.resetForm();
   }
 

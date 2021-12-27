@@ -4,6 +4,7 @@ import { HttpClient } from "@angular/common/http";
 import { Subject } from "rxjs";
 import { map } from "rxjs/operators";
 
+
 @Injectable({providedIn: 'root'})
 export class PostsService {
 
@@ -12,6 +13,7 @@ export class PostsService {
 
   private responseMessage : string = '';
 
+  // Constructor
   private httpClient;
   constructor(hClient: HttpClient) {
     this.httpClient = hClient;
@@ -41,7 +43,7 @@ export class PostsService {
     this.httpClient.post<{message: string, postID: string}>('http://localhost:3000/api/posts', post)
     .subscribe( (responseData) => { // observer
         this.responseMessage = responseData.message;
-        post.id = responseData.postID; // update post with his auto-generated ID 
+        post.id = responseData.postID; // update post with his auto-generated ID
         this.posts.push(post);
         this.postsUpdated.next([...this.posts]); // Subject .next()
         console.log("PostsService: addPost >> " + this.responseMessage);
@@ -49,7 +51,7 @@ export class PostsService {
     // addPost
   }
 
-  // This function delete an existing post on the backend database by his ID
+  // This function delete an existing post on the backend database, by his ID
   deletePost(postID : string) {
     this.httpClient.delete<{message: string}>('http://localhost:3000/api/posts/' + postID)
                    .subscribe( (responseData) => { // observer
@@ -60,6 +62,24 @@ export class PostsService {
                    });
     // deletePost
   }
+
+  // This function retrieves a post available in memory, by his Id
+  getPost(id: string) : Post {
+    const post: Post = this.posts.find(p => p.id === id) || { id: '', title: '', content: '' };
+    return post;
+  }
+
+
+  // This function update an existing post on the backend database, by his ID
+  updatePost(postID : string, title: string, content: string) {
+      const post: Post = { id: postID, title: title, content: content };
+      this.httpClient.put('http://localhost:3000/api/posts/' + postID, post)
+                     .subscribe( (responseData) => { // observer
+                        console.log("PostsService: updatePost >> responseData=" + responseData);
+                     });
+      // updatePost
+  }
+
 
   getPostsUpdatedListener() {
     return this.postsUpdated.asObservable(); // creates an Observable with this Subject as the source
