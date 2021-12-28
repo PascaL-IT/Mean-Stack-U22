@@ -10,4 +10,4 @@
   </mat-expansion-panel>
 </mat-accordion>
 <br/>
-<p class="mat-body-2" *ngIf="postList.length == 0">No post added yet...</p>
+<p class="mat-body-2" *ngIf="postList.length == 0 && !isLoading">No post added yet...</p>
