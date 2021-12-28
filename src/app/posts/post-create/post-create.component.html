@@ -1,9 +1,10 @@
 <!-- <hr> -->
-<label for="post">Enter your post:</label>
+<label for="post">{{postLabel}}</label>
 
 <!-- -- Solution with Angular Forms, Material for UI and NodeJS/ExpressJS/MongoDB for Backend-->
+<mat-spinner *ngIf="isLoading" mode="indeterminate" color="accent"></mat-spinner>
 <mat-card>
-  <form (submit)="onSavePostValue(postForm)" #postForm="ngForm" >
+  <form (submit)="onSavePostValue(postForm)" #postForm="ngForm" *ngIf="!isLoading">
     <mat-form-field>
       <input matInput placeholder="Post title: " type="text" name="postTitle" #i="ngModel"
              [ngModel]="pccPost.title"

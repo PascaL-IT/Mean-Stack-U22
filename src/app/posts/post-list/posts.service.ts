@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Subject } from "rxjs";
 import { map } from "rxjs/operators";
+import { Router } from "@angular/router";
 
 
 @Injectable({providedIn: 'root'})
@@ -15,7 +16,7 @@ export class PostsService {
 
   // Constructor
   private httpClient;
-  constructor(hClient: HttpClient) {
+  constructor(hClient: HttpClient, private router: Router) {
     this.httpClient = hClient;
   }
 
@@ -23,7 +24,7 @@ export class PostsService {
   getPosts() {
     this.httpClient
     .get<{ message: string, posts: any }>('http://localhost:3000/api/posts')
-    .pipe( map( (jsonData) => {
+    .pipe( map( (jsonData) => { // transform by mapping _id to id
             return { message: jsonData.message ,
                      posts: jsonData.posts.map( (p: any) => {
                         return { id: p._id , title: p.title, content: p.content };
@@ -47,6 +48,7 @@ export class PostsService {
         this.posts.push(post);
         this.postsUpdated.next([...this.posts]); // Subject .next()
         console.log("PostsService: addPost >> " + this.responseMessage);
+        this.router.navigate(["/"]);
      });
     // addPost
   }
@@ -64,18 +66,26 @@ export class PostsService {
   }
 
   // This function retrieves a post available in memory, by his Id
-  getPost(id: string) : Post {
-    const post: Post = this.posts.find(p => p.id === id) || { id: '', title: '', content: '' };
-    return post;
+  getMemoryPost(id: string) {
+     const post: Post = this.posts.find(p => p.id === id) || { id: id, title: '', content: '' };
+     console.log("PostsService: getMemoryPost >> post id=" + post.id + ' , title=' + post.title + ' , content=' + post.content);
+     return post;
+  }
+
+  // This function retrieves a post available in database, by his Id (return an Observable)
+  getPost(id: string) {
+    console.log("PostsService: getPost >> post id=" + id);
+    return this.httpClient.get<{ message: string , post: any }>('http://localhost:3000/api/posts/' + id);
   }
 
 
   // This function update an existing post on the backend database, by his ID
   updatePost(postID : string, title: string, content: string) {
       const post: Post = { id: postID, title: title, content: content };
-      this.httpClient.put('http://localhost:3000/api/posts/' + postID, post)
-                     .subscribe( (responseData) => { // observer
-                        console.log("PostsService: updatePost >> responseData=" + responseData);
+      this.httpClient.put<{message: string}>('http://localhost:3000/api/posts/' + postID, post)
+                     .subscribe( (response) => { // observer
+                        console.log("PostsService: updatePost >> responseData=" + response.message);
+                        this.router.navigate(["/"]);
                      });
       // updatePost
   }

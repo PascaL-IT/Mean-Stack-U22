@@ -1,4 +1,5 @@
-<mat-accordion multi="true" *ngIf="postList.length > 0">
+<mat-spinner *ngIf="isLoading" mode="indeterminate" color="accent"></mat-spinner>
+<mat-accordion multi="true" *ngIf="postList.length > 0 && !isLoading">
   <mat-expansion-panel *ngFor="let post of postList">
     <mat-expansion-panel-header>{{ post['title'] }}</mat-expansion-panel-header>
     {{ post['content'] }}

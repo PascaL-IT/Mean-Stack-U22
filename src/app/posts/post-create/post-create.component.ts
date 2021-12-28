@@ -15,6 +15,9 @@ export class PostCreateComponent implements OnInit {
   public minLengthContent = 10;
   public minLengthTitle = 4;
   public pccPost: Post;
+  public postLabel = 'Enter your post:';
+
+  isLoading : boolean = false; // public per default
 
   private mode: string = 'create'; // edit | create
 
@@ -24,19 +27,29 @@ export class PostCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log("PostCreateComponent - DEBUG: route=" + this.route.toString());
+    // console.log("PostCreateComponent - DEBUG: route=" + this.route.toString());
     this.route.url.subscribe((url) => { this.mode = url[0].path }); // find the mode by analysing the route path
     this.route.paramMap.subscribe( (paramMap: ParamMap) =>
       {
         // Edit mode
         if (this.mode === 'edit' && paramMap.has('postId')) { // check if Id presents
-          this.pccPost.id = paramMap.get('postId') || ''; // retrieve parameter value
-          this.pccPost = this.postService.getPost(this.pccPost.id); // get existing post from cache memory
-
+          this.postLabel = 'Edit your post:';
+          this.pccPost.id = paramMap.get('postId') || ''; // retrieve value of postId param
+          this.pccPost = this.postService.getMemoryPost(this.pccPost.id); // get existing post from cache memory
+          if (this.pccPost.title === '' || this.pccPost.content === '') {
+            this.isLoading = true;
+            this.postService.getPost(this.pccPost.id) // get a post from MongoDB on reload
+                            .subscribe( (postData) => { // map the post data
+                               this.pccPost.id = postData.post._id ,
+                               this.pccPost.title = postData.post.title ,
+                               this.pccPost.content = postData.post.content
+                               this.isLoading = false;
+                            });
+          }
         // Creation mode
-        } else if  (this.mode === 'create') {
+        } else if (this.mode === 'create') {
           this.pccPost.id = '';
-
+          this.postLabel = 'Create your post:';
         // Unsupported mode
         } else {
           throw new Error("Unsupported mode (either 'edit/:id' or 'create' routes)");
@@ -52,13 +65,14 @@ export class PostCreateComponent implements OnInit {
     if (form.invalid) {
       return; // avoid emitting on invalid inputs
     }
+    this.isLoading = true;
 
     if (this.mode === 'create') {
-      // save a new post after create
+      // save a new post after create, and redirect
       this.postService.addPost(form.value.postTitle, form.value.postContent);
 
     } else {
-      // save an existing post after edit
+      // save an existing post after edit, and redirect
       this.postService.updatePost(this.pccPost.id, form.value.postTitle, form.value.postContent);
     }
 
