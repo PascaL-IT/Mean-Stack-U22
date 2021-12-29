@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { NgForm } from "@angular/forms";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, ParamMap } from "@angular/router";
 import { Post } from "../post-list/post.model";
 import { PostsService } from "../post-list/posts.service";
@@ -12,22 +12,27 @@ import { PostsService } from "../post-list/posts.service";
 
 export class PostCreateComponent implements OnInit {
 
-  public minLengthContent = 10;
-  public minLengthTitle = 4;
-  public pccPost: Post;
-  public postLabel = 'Enter your post:';
-
-  isLoading : boolean = false; // public per default
-
   private mode: string = 'create'; // edit | create
 
-  // Section_5_66 : inject ActivatedRoute to determine the mode (edit|create) on init
-  constructor(public postService: PostsService, public route: ActivatedRoute) {
+  minLengthContent = 10; // public per default
+  minLengthTitle = 4;
+  pccPost: Post;
+  postLabel = 'Enter your post:';
+  isLoading : boolean = false;
+  imagePreview : string = '';
+
+  postForm: FormGroup = new FormGroup({
+    'postTitle' : new FormControl(null, { validators: [Validators.required, Validators.minLength(this.minLengthTitle)]} ),
+    'postContent' : new FormControl(null, { validators: [Validators.required, Validators.minLength(this.minLengthContent)]} ),
+    'postImage' : new FormControl(null) //, { validators: [Validators.required]} )
+  })
+
+  constructor(public postService: PostsService,
+              public route: ActivatedRoute       ) {
     this.pccPost = { id: '' , content: '' , title: '' };
   }
 
   ngOnInit(): void {
-    // console.log("PostCreateComponent - DEBUG: route=" + this.route.toString());
     this.route.url.subscribe((url) => { this.mode = url[0].path }); // find the mode by analysing the route path
     this.route.paramMap.subscribe( (paramMap: ParamMap) =>
       {
@@ -43,8 +48,11 @@ export class PostCreateComponent implements OnInit {
                                this.pccPost.id = postData.post._id ,
                                this.pccPost.title = postData.post.title ,
                                this.pccPost.content = postData.post.content
+                               this.postForm.setValue({ 'postTitle': this.pccPost.title, 'postContent': this.pccPost.content , 'postImage' : '' });
                                this.isLoading = false;
                             });
+          } else {
+            this.postForm.setValue({ 'postTitle': this.pccPost.title, 'postContent': this.pccPost.content , 'postImage' : '' });
           }
         // Creation mode
         } else if (this.mode === 'create') {
@@ -60,23 +68,46 @@ export class PostCreateComponent implements OnInit {
   }
 
   // Method called on Save button click
-  onSavePostValue(form: NgForm) {
+  onSavePostValue() {
     // alert("Post saved on MongoDB !")
-    if (form.invalid) {
+    if (this.postForm.invalid) {
       return; // avoid emitting on invalid inputs
     }
     this.isLoading = true;
 
     if (this.mode === 'create') {
       // save a new post after create, and redirect
-      this.postService.addPost(form.value.postTitle, form.value.postContent);
+      this.postService.addPost(this.postForm.value.postTitle,
+                               this.postForm.value.postContent);
 
     } else {
       // save an existing post after edit, and redirect
-      this.postService.updatePost(this.pccPost.id, form.value.postTitle, form.value.postContent);
+      this.postService.updatePost(this.pccPost.id,
+                                  this.postForm.value.postTitle,
+                                  this.postForm.value.postContent);
     }
 
-    form.resetForm();
+    this.postForm.reset();
+  }
+
+
+  // Method called on Pick Image button click
+  onPickImage(event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (!target.files?.length) {
+      throw new Error("onPickImage: Invalid image file !");
+    }
+    const file : File = target.files[0];
+    this.postForm.patchValue({postImage: file});
+    this.postForm.get('postImage')?.updateValueAndValidity();
+    // console.log(file); // DEBUG
+    // console.log(this.postForm); // DEBUG
+    const reader = new FileReader();
+    reader.onload = () => {
+        this.imagePreview = reader.result as string; // assign it once read
+        console.log(this.imagePreview);  // DEBUG
+    };
+    reader.readAsDataURL(file); // read the file
   }
 
 }

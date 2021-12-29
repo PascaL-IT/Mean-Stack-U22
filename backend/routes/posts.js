@@ -40,7 +40,7 @@ router.post('', (req, res, next) => {
 
   newPost.save() // to store into MongoDB
        .then( result => {
-         console.log('DEBUG: result=' + result);
+         console.log(result); // DEBUG
          console.log('Post with new _id=' + result._id +' successfully saved into MongoDB');
          return res.status(201)
                    .json({ message: 'New post saved successfully to MongoDB (backend)' ,
@@ -59,7 +59,7 @@ router.delete('/:id', (req, res, next) => {
 
   PostModel.deleteOne({ _id: postID })   // to delete one post from MongoDB
            .then( result => {
-             // console.log('DEBUG: result=' + result);
+             console.log(result); // DEBUG
              console.log('Post with _id=' + postID + ' successfully deleted on MongoDB');
              return res.status(200)
                        .json({ message: 'Post with id=' + postID + ' deleted on MongoDB (backend)' });
@@ -86,7 +86,7 @@ router.put('/:id', (req, res, next) => {
 
   PostModel.updateOne({ _id: postID }, updatedPost) // to update one post into MongoDB
            .then( (result) => {
-             // console.log('DEBUG: result=' + result);
+             console.log(result); // DEBUG
              console.log('Post with _id=' + postID + ' successfully updated on MongoDB');
              return res.status(200)
                        .json({ message: 'Post with id=' + postID + ' updated on MongoDB (backend)' });

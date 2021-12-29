@@ -1,22 +1,36 @@
-<!-- <hr> -->
+<!-- Post-create Reactive Form -->
 <label for="post">{{postLabel}}</label>
 
-<!-- -- Solution with Angular Forms, Material for UI and NodeJS/ExpressJS/MongoDB for Backend-->
+<!-- Solution with Angular Reactive Forms, Material for UI and NodeJS/ExpressJS/MongoDB for Backend -->
 <mat-spinner *ngIf="isLoading" mode="indeterminate" color="accent"></mat-spinner>
 <mat-card>
-  <form (submit)="onSavePostValue(postForm)" #postForm="ngForm" *ngIf="!isLoading">
+  <form [formGroup]="postForm" (submit)="onSavePostValue()" *ngIf="!isLoading">
     <mat-form-field>
-      <input matInput placeholder="Post title: " type="text" name="postTitle" #i="ngModel"
-             [ngModel]="pccPost.title"
-             required minlength="{{minLengthTitle}}" />
-      <mat-error *ngIf="i.invalid">Please enter a valid title (min. {{minLengthTitle}} chars are required)</mat-error>
+      <input matInput
+             placeholder="Post title: "
+             type="text"
+             formControlName="postTitle" />
+      <mat-error *ngIf="postForm.get('postTitle')?.invalid">Please enter a valid title (min. {{minLengthTitle}} chars are required)</mat-error>
     </mat-form-field>
+    <div>
+      <button mat-stroked-button
+              type="button" color="primary"
+              (click)="fileInputPicker.click()">Pick image</button>
+      <input type="file"
+             #fileInputPicker
+             (change)="onPickImage($event)" />
+    </div>
+    <div class="image-picker" *ngIf="imagePreview">
+      <img [src]="imagePreview" [alt]="postForm.value.postTitle" />
+    </div>
+     <!--
+    <mat-error *ngIf="! postForm.get('postImage')">Please enter a valid image</mat-error>
+    -->
+
     <mat-form-field>
-      <textarea matInput placeholder="Post content: " name="postContent" rows="4" cols="50" #t="ngModel"
-            [ngModel]="pccPost.content"
-            required
-            minlength="{{minLengthContent}}"></textarea>
-      <mat-error *ngIf="t.invalid">Please enter a valid content  (min. {{minLengthContent}} chars are required)</mat-error>
+      <textarea matInput placeholder="Post content: " rows="4" cols="50"
+                formControlName="postContent"></textarea>
+      <mat-error *ngIf="postForm.get('postContent')?.invalid">Please enter a valid content  (min. {{minLengthContent}} chars are required)</mat-error>
     </mat-form-field>
     <div style="margin-right: 100%">
       <button mat-raised-button color="primary" type="submit">Save post</button>

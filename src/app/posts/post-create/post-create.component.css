@@ -12,7 +12,7 @@ mat-form-field {
   margin: 0em 0em 1em 0em;
 }
 
-.textarea {
+textarea {
   margin: 0;
   padding: 0;
 }
@@ -20,3 +20,18 @@ mat-form-field {
 mat-spinner {
   margin: auto;
 }
+
+button[type=button] {
+  margin-right: 100%;
+  padding: 5;
+}
+
+input[type=file] {
+  visibility: hidden;
+}
+
+.image-picker img {
+  /* max-height: 10rem; */
+  width: 100%;
+}
+
