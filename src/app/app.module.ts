@@ -17,6 +17,7 @@ import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
 import { PostCreateComponent } from './posts/post-create/post-create.component';
 import { PostListComponent } from './posts/post-list/post-list.component';
+import { SanitizeHtmlPipe } from './posts/post-list/sanitizehtml-pipe';
 // import { PostsService } from './posts/post-list/posts.service'; // vs. @Injectable
 
 
@@ -24,7 +25,8 @@ import { PostListComponent } from './posts/post-list/post-list.component';
   declarations: [
     AppComponent ,
     HeaderComponent,
-    PostCreateComponent, PostListComponent
+    PostCreateComponent, PostListComponent,
+    SanitizeHtmlPipe
   ],
   imports: [
     AppRoutingModule,

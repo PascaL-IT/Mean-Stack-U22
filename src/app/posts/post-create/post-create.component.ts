@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, ParamMap } from "@angular/router";
 import { Post } from "../post-list/post.model";
 import { PostsService } from "../post-list/posts.service";
+import { mimeType } from "./mime-type.validator";
 
 @Component({
   selector: 'app-post-create',
@@ -24,12 +25,12 @@ export class PostCreateComponent implements OnInit {
   postForm: FormGroup = new FormGroup({
     'postTitle' : new FormControl(null, { validators: [Validators.required, Validators.minLength(this.minLengthTitle)]} ),
     'postContent' : new FormControl(null, { validators: [Validators.required, Validators.minLength(this.minLengthContent)]} ),
-    'postImage' : new FormControl(null) //, { validators: [Validators.required]} )
+    'postImage' : new FormControl(null, { asyncValidators: [mimeType] , validators: [Validators.nullValidator] })
   })
 
   constructor(public postService: PostsService,
               public route: ActivatedRoute       ) {
-    this.pccPost = { id: '' , content: '' , title: '' };
+    this.pccPost = { id: '' , content: '' , title: '' , imagePath: '' };
   }
 
   ngOnInit(): void {
@@ -44,20 +45,44 @@ export class PostCreateComponent implements OnInit {
           if (this.pccPost.title === '' || this.pccPost.content === '') {
             this.isLoading = true;
             this.postService.getPost(this.pccPost.id) // get a post from MongoDB on reload
-                            .subscribe( (postData) => { // map the post data
-                               this.pccPost.id = postData.post._id ,
-                               this.pccPost.title = postData.post.title ,
-                               this.pccPost.content = postData.post.content
-                               this.postForm.setValue({ 'postTitle': this.pccPost.title, 'postContent': this.pccPost.content , 'postImage' : '' });
+                            .subscribe( (postData) => {
+                               // map the post response data
+                               this.pccPost.id = postData.post._id;
+                               this.pccPost.title = postData.post.title;
+                               this.pccPost.content = postData.post.content;
+                               let filePath = "";
+                               if (this.pccPost.imagePath) {
+                                 filePath = this.pccPost.imagePath;
+                                 this.imagePreview = filePath;
+                               }
+                               // set form values
+                               this.postForm.setValue({ 'postTitle' : this.pccPost.title,
+                                                        'postContent' : this.pccPost.content ,
+                                                        'postImage' : filePath
+                                                      });
                                this.isLoading = false;
                             });
           } else {
-            this.postForm.setValue({ 'postTitle': this.pccPost.title, 'postContent': this.pccPost.content , 'postImage' : '' });
+            let filePath = "";
+            if (this.pccPost.imagePath) {
+              filePath = this.pccPost.imagePath;
+              this.imagePreview = filePath;
+            }
+            this.postForm.setValue({ 'postTitle': this.pccPost.title,
+                                     'postContent': this.pccPost.content ,
+                                     'postImage' : filePath
+                                    });
           }
+
         // Creation mode
         } else if (this.mode === 'create') {
+          this.isLoading = true;
           this.pccPost.id = '';
           this.postLabel = 'Create your post:';
+          // set form values to empty
+          this.postForm.setValue({ 'postTitle' : null, 'postContent' : null , 'postImage' : '' });
+          this.isLoading = false;
+
         // Unsupported mode
         } else {
           throw new Error("Unsupported mode (either 'edit/:id' or 'create' routes)");
@@ -69,22 +94,43 @@ export class PostCreateComponent implements OnInit {
 
   // Method called on Save button click
   onSavePostValue() {
-    // alert("Post saved on MongoDB !")
+
     if (this.postForm.invalid) {
+      console.log("Invalid form ... ");
+      console.log(this.postForm); // DEBUG
       return; // avoid emitting on invalid inputs
     }
+
+    if ( this.postForm.value.postTitle === null
+      || this.postForm.value.postTitle.length < this.minLengthTitle
+      ) {
+        console.log("Invalid form title ... (min. "+this.minLengthTitle+" chars");
+        console.log(this.postForm.value); // DEBUG
+        return; // avoid emitting on invalid inputs
+    }
+
+    if ( this.postForm.value.postContent === null
+      || this.postForm.value.postContent.length < this.minLengthContent
+      ) {
+        console.log("Invalid form content ... (min. "+this.minLengthContent+" chars");
+        console.log(this.postForm.value); // DEBUG
+        return; // avoid emitting on invalid inputs
+    }
+
     this.isLoading = true;
 
     if (this.mode === 'create') {
-      // save a new post after create, and redirect
+      // save a new post on create, and redirect
       this.postService.addPost(this.postForm.value.postTitle,
-                               this.postForm.value.postContent);
+                               this.postForm.value.postContent,
+                               this.postForm.value.postImage);
 
     } else {
-      // save an existing post after edit, and redirect
+      // save an existing post after edit, and redirect (i.e. update)
       this.postService.updatePost(this.pccPost.id,
                                   this.postForm.value.postTitle,
-                                  this.postForm.value.postContent);
+                                  this.postForm.value.postContent,
+                                  this.postForm.value.postImage);
     }
 
     this.postForm.reset();
@@ -105,9 +151,15 @@ export class PostCreateComponent implements OnInit {
     const reader = new FileReader();
     reader.onload = () => {
         this.imagePreview = reader.result as string; // assign it once read
-        console.log(this.imagePreview);  // DEBUG
+       // console.log(this.imagePreview);  // DEBUG
     };
     reader.readAsDataURL(file); // read the file
+  }
+
+  // Method called to reset the image
+  resetImagePicker() {
+    this.imagePreview = '';
+    this.postForm.setValue({ 'postTitle': this.pccPost.title, 'postContent': this.pccPost.content , 'postImage' : '' });
   }
 
 }

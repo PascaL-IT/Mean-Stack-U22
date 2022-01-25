@@ -6,27 +6,24 @@
 <mat-card>
   <form [formGroup]="postForm" (submit)="onSavePostValue()" *ngIf="!isLoading">
     <mat-form-field>
-      <input matInput
-             placeholder="Post title: "
+      <input matInput placeholder="Post title: "
              type="text"
              formControlName="postTitle" />
       <mat-error *ngIf="postForm.get('postTitle')?.invalid">Please enter a valid title (min. {{minLengthTitle}} chars are required)</mat-error>
     </mat-form-field>
-    <div>
-      <button mat-stroked-button
-              type="button" color="primary"
+    <div class="image-buttons">
+      <button mat-stroked-button type="button" color="primary"
               (click)="fileInputPicker.click()">Pick image</button>
+      <button *ngIf="imagePreview" mat-stroked-button type="button" color="accent" (click)="resetImagePicker()">Clear</button>
       <input type="file"
              #fileInputPicker
              (change)="onPickImage($event)" />
     </div>
-    <div class="image-picker" *ngIf="imagePreview">
+    <div class="image-preview" *ngIf="imagePreview"> <!-- && postForm.get('postImage')?.valid"> -->
       <img [src]="imagePreview" [alt]="postForm.value.postTitle" />
     </div>
-     <!--
-    <mat-error *ngIf="! postForm.get('postImage')">Please enter a valid image</mat-error>
-    -->
 
+    <mat-error *ngIf="postForm.get('postImage')?.invalid">Invalid file format</mat-error>
     <mat-form-field>
       <textarea matInput placeholder="Post content: " rows="4" cols="50"
                 formControlName="postContent"></textarea>

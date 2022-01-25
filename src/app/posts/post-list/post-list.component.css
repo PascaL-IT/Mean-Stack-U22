@@ -12,3 +12,9 @@ mat-spinner {
   margin-right: 50%;
   */
 }
+
+.image-preview img {
+  /* max-height: 10rem; */
+  width: 60%;
+  box-shadow: 5px 5px 5px rgba( 0, 0 , 0, 0.5);
+}

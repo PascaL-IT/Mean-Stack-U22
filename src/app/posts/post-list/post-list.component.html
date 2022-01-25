@@ -2,7 +2,12 @@
 <mat-accordion multi="true" *ngIf="postList.length > 0 && !isLoading">
   <mat-expansion-panel *ngFor="let post of postList">
     <mat-expansion-panel-header>{{ post['title'] }}</mat-expansion-panel-header>
-    {{ post['content'] }}
+    <div class="image-preview" *ngIf="post.imagePath">
+      <img [src]="post.imagePath" alt="post.title" />
+    </div>
+    <!-- {{ post['content'] }} -->
+    <div [innerHTML]="stringToHTML(post['content']) | sanitizeHtml"></div>
+
     <mat-action-row>
       <a mat-button color="primary" [routerLink]="['/edit', post.id]">EDIT</a>
       <button mat-button color="warn" (click)="onDelete(post.id)" >DELETE</button>

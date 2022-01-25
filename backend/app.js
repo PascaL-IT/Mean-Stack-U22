@@ -1,8 +1,10 @@
+const path = require("path");
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const app = express();
 const postRoutes = require('./routes/posts');
+
 
 const dbName = 'database1';
 const clusterUri = 'cluster1.m3eok.mongodb.net';
@@ -11,6 +13,8 @@ mongoose.connect("mongodb+srv://" + credentials + "@" + clusterUri + "/" + dbNam
     .then(() => { console.log("Connected to MongoDB ("+clusterUri+" , "+dbName+")") })
     .catch(() => { console.log("Failed to connect to MongoDB ("+clusterUri+" , "+dbName+")") })
 
+
+app.use("/images", express.static(path.join('backend/images')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : false}));
 app.use((req, res, next) => {

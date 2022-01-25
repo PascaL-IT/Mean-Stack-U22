@@ -1,8 +1,8 @@
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Post } from "./post.model";
 import { PostsService } from "./posts.service";
 import { Subscription } from "rxjs";
-import { SelectMultipleControlValueAccessor } from "@angular/forms";
+
 
 @Component({
   selector: 'app-post-list',
@@ -35,11 +35,15 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.postSub.unsubscribe;
-    console.log("ngOnDestroy: unsubscribe observer on posts update");
+    // console.log("ngOnDestroy: unsubscribe observer on posts update"); // DEBUG
   }
 
   onDelete(postID : string) : void {
     this.postService.deletePost(postID);
+  }
+
+  stringToHTML(text : string) : any {
+    return new DOMParser().parseFromString(text, "text/html").documentElement.textContent;
   }
 
 }
