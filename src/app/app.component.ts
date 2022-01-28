@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Post } from "./posts/post-list/post.model";
+import { Title } from "@angular/platform-browser";
 
 @Component({
   selector: 'app-root',
@@ -8,15 +8,14 @@ import { Post } from "./posts/post-list/post.model";
 })
 
 export class AppComponent {
+
   title = 'udemy-mean-course';
 
-  /*
-  // Solution 4 and 5 with various bindings
-  appPosts: Post[] = [];
+  constructor(private titleService:Title) {
+  }
 
-  onNewCreatedPost(post: Post) {
-    this.appPosts.push(post);
-  };
-  */
+  ngOnInit() {
+    this.titleService.setTitle(this.title);
+  }
 
 }

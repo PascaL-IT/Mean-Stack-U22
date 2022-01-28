@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Post } from "./post.model";
 import { PostsService } from "./posts.service";
 import { Subscription } from "rxjs";
+import { PageEvent } from "@angular/material/paginator";
 
 
 @Component({
@@ -13,21 +14,32 @@ import { Subscription } from "rxjs";
 export class PostListComponent implements OnInit, OnDestroy {
 
   isLoading : boolean = false;
-
   postList: Post[] = []; // array of Posts updated via our post service
+  postListSize = 0;
 
-  constructor(public postService: PostsService) { }; // dependency injection
+  // Pagination params
+  pageList: Post[] = []; // array of Posts used for memory pagination
+  pageIndex = 0; // default
+  pageSize = 10; // default
+  pageSizeOptions = [1,2,3,4,5,10]; // 20,50,100
 
-  private postSub: Subscription = new Subscription; // Observer
+  // Constructor used to inject the service (DI = dependency injection)
+  constructor(public postService: PostsService) { }; //
+
+  // Observer
+  private postSub: Subscription = new Subscription;
 
   ngOnInit(): void {
-    this.postService.getPosts(); // trigger the HTTP request to retrieve JSON data from REST API (async call)
     this.isLoading = true;
+    this.postService.getPosts(); // trigger the HTTP request to retrieve JSON data from REST API (async call)
+
     this.postSub = this.postService.getPostsUpdatedListener() // Listener on the Observable
                                    .subscribe( // Observer subscription
                                       (list_of_posts: Post[]) => {
                                         this.postList = list_of_posts;
-                                        console.log("PostListComponent - ngOnInit: size of posts = " + this.postList.length);
+                                        this.postListSize = this.postList.length;
+                                        this.onPaginationChange();
+                                        console.log("PostListComponent - ngOnInit: size of posts = " + this.postListSize);
                                         // setTimeout(() => { this.isLoading = false; } , 5000); // Mock latency of 5 sec
                                         this.isLoading = false;
                                       });
@@ -44,6 +56,30 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   stringToHTML(text : string) : any {
     return new DOMParser().parseFromString(text, "text/html").documentElement.textContent;
+  }
+
+  onPageChange(event : PageEvent) {
+    console.log("PostListComponent - onPageChange ...");
+    // console.log(event); // DEBUG
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.postListSize = event.length;
+    this.onPaginationChange();
+  }
+
+  onPaginationChange() {
+    let x = this.pageIndex * this.pageSize; // Start at 0
+    let y = this.pageSize * (this.pageIndex + 1); // step * (index + 1)
+
+    if (this.postListSize < this.pageSize || y > this.postListSize) {
+      y = this.postListSize; // limit to the max.
+    }
+
+    this.pageList = [];
+    for (let i=x; i<y; i++) {
+      this.pageList.push(this.postList[i]); // rebuild a list that matches the pagination params
+    }
+
   }
 
 }

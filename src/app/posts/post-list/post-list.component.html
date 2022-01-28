@@ -1,6 +1,6 @@
 <mat-spinner *ngIf="isLoading" mode="indeterminate" color="accent"></mat-spinner>
 <mat-accordion multi="true" *ngIf="postList.length > 0 && !isLoading">
-  <mat-expansion-panel *ngFor="let post of postList">
+  <mat-expansion-panel *ngFor="let post of pageList">
     <mat-expansion-panel-header>{{ post['title'] }}</mat-expansion-panel-header>
     <div class="image-preview" *ngIf="post.imagePath">
       <img [src]="post.imagePath" alt="post.title" />
@@ -16,3 +16,10 @@
 </mat-accordion>
 <br/>
 <p class="mat-body-2" *ngIf="postList.length == 0 && !isLoading">No post added yet...</p>
+<mat-paginator [length]="postList.length"
+               [pageSize]="pageSize"
+               [pageSizeOptions]="pageSizeOptions"
+               (page)="onPageChange($event)"
+               aria-label="Select page">
+</mat-paginator>
+

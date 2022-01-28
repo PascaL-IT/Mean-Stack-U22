@@ -1,6 +1,6 @@
 import { AppRoutingModule } from './app-routing.module';
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -10,6 +10,7 @@ import { MatToolbarModule} from '@angular/material/toolbar';
 import { MatExpansionModule} from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HttpClientModule } from '@angular/common/http';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 
 // My Application modules
@@ -36,11 +37,12 @@ import { SanitizeHtmlPipe } from './posts/post-list/sanitizehtml-pipe';
     MatInputModule, MatCardModule, MatButtonModule,
     MatToolbarModule, MatExpansionModule,
     MatProgressSpinnerModule,
-    HttpClientModule
+    HttpClientModule,
+    MatPaginatorModule
   ],
 
   // providers: [PostsService], // without @Injectable
-  providers: [],
+  providers: [Title],           // inject Title
   bootstrap: [AppComponent]
 })
 

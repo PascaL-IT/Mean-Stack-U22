@@ -8,6 +8,7 @@ export class SanitizeHtmlPipe implements PipeTransform {
 
   transform(data : string): any {
      let htmlData = data.replace(/\n/g, '<br/>');
+     // see Wiki markup - https://en.wikipedia.org/wiki/Help:Wikitext - to add more transformations
      return this.sanitizer.sanitize(SecurityContext.HTML, htmlData);
   }
 

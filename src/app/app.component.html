@@ -1,22 +1,9 @@
+<h1 style="display: none">{{title}}</h1>
 
+<!-- Header - banner -->
 <app-header></app-header>
 
-<!-- Router solution -->
+<!-- Main - solution with a Router -->
 <main>
   <router-outlet></router-outlet>
 </main>
-
-
-<!-- Solutions 4 and 5 with various bindings
-<main>
-  <app-post-create (postCreated)="onNewCreatedPost($event)"></app-post-create>
-  <app-post-list [postList]="appPosts"></app-post-list>
-</main>
--->
-
-<!-- Solution 6 with a post service
-<main>
-  <app-post-create></app-post-create>
-  <app-post-list></app-post-list>
-</main>
--->

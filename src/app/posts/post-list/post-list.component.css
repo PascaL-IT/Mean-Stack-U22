@@ -18,3 +18,7 @@ mat-spinner {
   width: 60%;
   box-shadow: 5px 5px 5px rgba( 0, 0 , 0, 0.5);
 }
+
+mat-paginator {
+  margin: 1rem;
+}

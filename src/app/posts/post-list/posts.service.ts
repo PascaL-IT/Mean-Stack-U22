@@ -9,6 +9,8 @@ import { Router } from "@angular/router";
 @Injectable({providedIn: 'root'})
 export class PostsService {
 
+  private baseUrl: string = 'http://localhost:3000/api/posts/';
+
   private posts: Post[] = [];
   private postsUpdated = new Subject<Post[]>(); // Subject (Active observable)
 
@@ -23,7 +25,7 @@ export class PostsService {
   // This function retrieves all the posts available from the backend database
   getPosts() {
     this.httpClient
-              .get<{ message: string, posts: any }>('http://localhost:3000/api/posts')
+              .get<{ message: string, posts: any }>(this.baseUrl)
               .pipe( map( (jsonData) => { // transform by mapping _id to id
                       return { message: jsonData.message ,
                                posts: jsonData.posts.map( (post: any) => {
@@ -55,7 +57,7 @@ export class PostsService {
       postData.append("image", postImage, postImage.name); // as multer({storage: imageStorage}).single("image")
     }
 
-    this.httpClient.post<{message: string, post: Post}>('http://localhost:3000/api/posts', postData)
+    this.httpClient.post<{message: string, post: Post}>(this.baseUrl, postData)
      .subscribe( (response) => { // observer
         this.responseMessage = response.message;
         const post: Post = { id: response.post.id , // update post with the auto-generated ID from response (MongoDB)
@@ -74,7 +76,7 @@ export class PostsService {
 
   // This function delete an existing post on the backend database, by his ID
   deletePost(postId : string) {
-    this.httpClient.delete<{message: string}>('http://localhost:3000/api/posts/' + postId)
+    this.httpClient.delete<{message: string}>(this.baseUrl + postId)
                    .subscribe( (responseData) => { // observer
                        this.responseMessage = responseData.message;
                        this.posts = this.posts.filter(p => p.id !== postId); // TIP to remove the post having this postId
@@ -97,7 +99,7 @@ export class PostsService {
   // This function retrieves a post available in database, by his Id (return an Observable)
   getPost(postId: string) {
     console.log("PostsService: getPost >> post id=" + postId);
-    return this.httpClient.get<{ message: string , post: any }>('http://localhost:3000/api/posts/' + postId);
+    return this.httpClient.get<{ message: string , post: any }>(this.baseUrl + postId);
   }
 
 
@@ -114,7 +116,7 @@ export class PostsService {
         postData.append("image", postImage, postImage.name); // as multer({storage: imageStorage}).single("image")
       }
 
-      this.httpClient.put<{message: string}>('http://localhost:3000/api/posts/' + postId, postData)
+      this.httpClient.put<{message: string}>(this.baseUrl + postId, postData)
                      .subscribe( (response) => { // observer
                         console.log("PostsService: updatePost >> responseData=" + response.message);
                         this.router.navigate(["/"]);
