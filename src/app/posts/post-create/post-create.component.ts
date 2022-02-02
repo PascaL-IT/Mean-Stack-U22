@@ -94,10 +94,9 @@ export class PostCreateComponent implements OnInit {
 
   // Method called on Save button click
   onSavePostValue() {
-
     if (this.postForm.invalid) {
       console.log("Invalid form ... ");
-      console.log(this.postForm); // DEBUG
+      // console.log(this.postForm); // DEBUG
       return; // avoid emitting on invalid inputs
     }
 
@@ -159,7 +158,11 @@ export class PostCreateComponent implements OnInit {
   // Method called to reset the image
   resetImagePicker() {
     this.imagePreview = '';
-    this.postForm.setValue({ 'postTitle': this.pccPost.title, 'postContent': this.pccPost.content , 'postImage' : '' });
+    if (this.pccPost.title || this.pccPost.content) {
+      this.postForm.setValue({ 'postTitle': this.pccPost.title, 'postContent': this.pccPost.content , 'postImage' : this.imagePreview });
+    } else {
+      this.postForm.setValue({ 'postImage' : this.imagePreview });
+    }
   }
 
 }

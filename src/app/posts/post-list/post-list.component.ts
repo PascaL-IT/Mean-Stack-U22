@@ -15,12 +15,12 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   isLoading : boolean = false;
   postList: Post[] = []; // array of Posts updated via our post service
-  postListSize = 0;
+  postListMax = 0; // total number of posts on MongoDB
 
   // Pagination params
   pageList: Post[] = []; // array of Posts used for memory pagination
   pageIndex = 0; // default
-  pageSize = 10; // default
+  pageSize = 5; // default
   pageSizeOptions = [1,2,3,4,5,10]; // 20,50,100
 
   // Constructor used to inject the service (DI = dependency injection)
@@ -29,20 +29,24 @@ export class PostListComponent implements OnInit, OnDestroy {
   // Observer
   private postSub: Subscription = new Subscription;
 
+
   ngOnInit(): void {
     this.isLoading = true;
-    this.postService.getPosts(); // trigger the HTTP request to retrieve JSON data from REST API (async call)
+    this.postService.getPosts(this.pageSize, this.pageIndex); // trigger the HTTP request to retrieve JSON data from REST API (async call)
+                                                              // two parameters used for pagination
 
     this.postSub = this.postService.getPostsUpdatedListener() // Listener on the Observable
                                    .subscribe( // Observer subscription
-                                      (list_of_posts: Post[]) => {
-                                        this.postList = list_of_posts;
-                                        this.postListSize = this.postList.length;
-                                        this.onPaginationChange();
-                                        console.log("PostListComponent - ngOnInit: size of posts = " + this.postListSize);
-                                        // setTimeout(() => { this.isLoading = false; } , 5000); // Mock latency of 5 sec
-                                        this.isLoading = false;
+                                      ( responseData ) => {
+                                          this.postList = responseData.posts;
+                                          this.postListMax = responseData.postsMax;
+                                          console.log("PostListComponent - ngOnInit: size of posts=" + this.postList.length + " on a total of " + this.postListMax);
+                                          // this.onPaginationChange(); // obsoleted by pagination on backend side
+                                          // setTimeout(() => { this.isLoading = false; } , 5000); // Mock latency of 5 sec
+                                          this.isLoading = false;
                                       });
+
+
   };
 
   ngOnDestroy(): void {
@@ -51,22 +55,32 @@ export class PostListComponent implements OnInit, OnDestroy {
   }
 
   onDelete(postID : string) : void {
-    this.postService.deletePost(postID);
+    this.isLoading = true;
+    this.postService.deletePost(postID)
+    .subscribe( (responseData) => { // observer
+          this.isLoading = true;
+          console.log("PostsService: deletePost >> " + responseData.message);
+          if (this.postList.length <= 1 && this.pageIndex >= 1) {
+            this.pageIndex -= 1;
+          }
+          this.postService.getPosts(this.pageSize, this.pageIndex); // get posts
+     });
+  }
+
+  onPageChange(event : PageEvent) {
+    // console.log("PostListComponent - onPageChange ..."); // DEBUG
+    this.isLoading = true;
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.postService.getPosts(this.pageSize, this.pageIndex); // re-trigger the HTTP request
   }
 
   stringToHTML(text : string) : any {
     return new DOMParser().parseFromString(text, "text/html").documentElement.textContent;
   }
 
-  onPageChange(event : PageEvent) {
-    console.log("PostListComponent - onPageChange ...");
-    // console.log(event); // DEBUG
-    this.pageIndex = event.pageIndex;
-    this.pageSize = event.pageSize;
-    this.postListSize = event.length;
-    this.onPaginationChange();
-  }
 
+  /* Obsoleted by pagination on backend (no more in memory)
   onPaginationChange() {
     let x = this.pageIndex * this.pageSize; // Start at 0
     let y = this.pageSize * (this.pageIndex + 1); // step * (index + 1)
@@ -79,8 +93,8 @@ export class PostListComponent implements OnInit, OnDestroy {
     for (let i=x; i<y; i++) {
       this.pageList.push(this.postList[i]); // rebuild a list that matches the pagination params
     }
-
   }
+  */
 
 }
 

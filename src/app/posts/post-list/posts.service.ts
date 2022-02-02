@@ -12,9 +12,10 @@ export class PostsService {
   private baseUrl: string = 'http://localhost:3000/api/posts/';
 
   private posts: Post[] = [];
-  private postsUpdated = new Subject<Post[]>(); // Subject (Active observable)
+  private postsUpdated = new Subject<{ posts: Post[], postsMax: number, pageSize: number, pageIndex: number }>(); // Subject (Active observable)
 
-  private responseMessage : string = '';
+  // private responseMessage : string = '';
+  // private responseMaxPosts : number = 0;
 
   // Constructor
   private httpClient;
@@ -22,26 +23,32 @@ export class PostsService {
     this.httpClient = hClient;
   }
 
-  // This function retrieves all the posts available from the backend database
-  getPosts() {
+  // This function retrieves the posts from the backend database as per the pagination params
+  getPosts(pageSize: number, pageIndex: number) {
+    const pageQueryParams : string = "?pagesize=" + pageSize + '&pageindex=' + pageIndex;
+
     this.httpClient
-              .get<{ message: string, posts: any }>(this.baseUrl)
+              .get<{ message: string, posts: any, maxPosts: number }>(this.baseUrl + pageQueryParams)
               .pipe( map( (jsonData) => { // transform by mapping _id to id
-                      return { message: jsonData.message ,
+                      return {
+                               message: jsonData.message ,
+                               maxPosts: jsonData.maxPosts ,
                                posts: jsonData.posts.map( (post: any) => {
                                   return { id: post._id , title: post.title, content: post.content, imagePath: post.imagePath };
-                      }) } }  ) )
+                               }
+                      ) } }  ) )
               .subscribe( (jsonData) => { // observer
-                  this.responseMessage = jsonData.message;
-                  this.posts = jsonData.posts;
-                  this.postsUpdated.next([...this.posts]); // Subject .next()
-                  console.log("PostsService: getPosts >> message: " + this.responseMessage);
+                  // this.responseMessage = jsonData.message;
+                  // this.responseMaxPosts = jsonData.maxPosts;
+                  this.posts = jsonData.posts; // subset of list of posts
+                  this.postsUpdated.next({ posts: [...this.posts], postsMax: jsonData.maxPosts, pageSize: pageSize, pageIndex: pageIndex }); // Subject .next()
+                  console.log("PostsService: getPosts >> message: " + jsonData.message + " (total/max. of posts="+jsonData.maxPosts+")");
                 });
     // getPosts
   }
 
   // This function add a new post to the backend database, and store a file if any
-  addPost(postTitle:string, postContent:string, postImage: File | string) {
+  addPost(postTitle: string, postContent: string, postImage: File | string) {
 
     let postData: Post | FormData;
     if (typeof postImage === 'string') {
@@ -59,15 +66,17 @@ export class PostsService {
 
     this.httpClient.post<{message: string, post: Post}>(this.baseUrl, postData)
      .subscribe( (response) => { // observer
-        this.responseMessage = response.message;
+        // this.responseMessage = response.message;
+        /* Obsoleted by pagination
         const post: Post = { id: response.post.id , // update post with the auto-generated ID from response (MongoDB)
                              title: response.post.title,
                              content: response.post.content,
                              imagePath: response.post.imagePath
                            };
         this.posts.push(post);
-        this.postsUpdated.next([...this.posts]); // Subject .next()
-        console.log("PostsService: addPost >> " + this.responseMessage);
+        this.postsUpdated.next(posts: [...this.posts]); // Subject .next()
+        */
+        console.log("PostsService: addPost >> " +  response.message);
         this.router.navigate(["/"]);
      });
     // addPost
@@ -75,14 +84,8 @@ export class PostsService {
 
 
   // This function delete an existing post on the backend database, by his ID
-  deletePost(postId : string) {
-    this.httpClient.delete<{message: string}>(this.baseUrl + postId)
-                   .subscribe( (responseData) => { // observer
-                       this.responseMessage = responseData.message;
-                       this.posts = this.posts.filter(p => p.id !== postId); // TIP to remove the post having this postId
-                       this.postsUpdated.next([...this.posts]); // Subject .next() -> save a new copy of list of posts
-                       console.log("PostsService: deletePost >> " + this.responseMessage);
-                   });
+  deletePost(postId: string) {
+    return this.httpClient.delete<{message: string}>(this.baseUrl + postId); // TIP : return an Observable
     // deletePost
   }
 
@@ -104,7 +107,7 @@ export class PostsService {
 
 
   // This function update an existing post on the backend database, by his ID
-  updatePost(postId : string, postTitle: string, postContent: string, postImage: File | string) {
+  updatePost(postId: string, postTitle: string, postContent: string, postImage: File | string) {
       let postData: Post | FormData;
       if (typeof postImage === 'string') {
         postData = { id: postId, title: postTitle, content: postContent, imagePath: postImage };
@@ -126,7 +129,7 @@ export class PostsService {
 
 
   getPostsUpdatedListener() {
-    return this.postsUpdated.asObservable(); // creates an Observable with this Subject as the source
+    return this.postsUpdated.asObservable(); // observable
     // getPostsUpdatedListener
   }
 

@@ -33,23 +33,42 @@ const imageStorage = multer.diskStorage({
 
 // REST PATH for POSTS is '/api/posts'
 
-// REST API : GET (READ) -> list of posts from database
+// REST API : GET (READ) -> list of posts from database, with pagination params
 router.get('', (req, res, next) => {
   console.log('Server handles GET request to fetch all posts data ...');
-  PostModel.find() // to find all Mongoose's PostModel
-           .then((documents) => {
-             if (documents) {
-              console.log('Size of posts = ' + documents.length);
+  const postModel = PostModel.find(); // to find all Mongoose's PostModel documents
+  const pageSize = +req.query.pagesize; // pagesize=1,2,3,4,5,10,20...
+  const pageIndex = +req.query.pageindex; // pageindex=0,1,2...
+  let postDocuments;
+
+  // On pagination, we skip and limit
+  if (pageSize >= 1 && pageIndex >= 0) {
+    postModel.skip(pageSize * pageIndex).limit(pageSize);
+    // console.log('Pagination occured...'); // DEBUG
+  }
+  // Then count the documents
+  postModel.then(
+    (documents) => {
+      postDocuments = documents; // keep a reference of posts
+      return PostModel.count(); // counting nbr. of documents
+  })
+  // Then return the reponse
+  .then((postsCounter) => {
+             if (postDocuments && postsCounter > 0) {
+              console.log('Backend - size of posts=' + postDocuments.length + ' on a total of ' + postsCounter + ' (as Page size=' + pageSize + ' and index=' + pageIndex + ')');
               return res.status(200)
-              .json( { message: 'List of ' + documents.length + ' posts successfully fetched for posting ...' ,
-                       posts: documents } );
+              .json( { message: 'List of ' + postDocuments.length + ' posts successfully fetched for posting with pagination' ,
+                       posts: postDocuments,
+                       maxPosts: postsCounter
+                       } );
              } else {
-              console.log('Size of posts = 0 => no document');
+              console.log('Backend - size of posts=0 => no document found.');
               return res.status(404)
               .json( { message: 'List of posts is empty, no post found yet for posting ...' ,
                        posts: null } );
              }
    });
+
   // router.get
 });
 
