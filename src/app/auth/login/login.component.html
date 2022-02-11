@@ -1,0 +1,27 @@
+<!-- Login Form -->
+<h3><label for="post">{{loginLabel}}</label></h3>
+
+<!-- Solution with Angular FormsModule and Material for the UI ... -->
+<mat-spinner *ngIf="isLoading" mode="indeterminate" color="accent"></mat-spinner>
+<mat-card>
+  <form *ngIf="!isLoading" #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)" >
+
+    <mat-form-field>
+      <input matInput placeholder="Email: " name="email" type="email"
+             ngModel #emailInput="ngModel" required email />
+      <mat-error *ngIf="emailInput.invalid">Please enter a valid email</mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <input matInput placeholder="Password: " name="password" type="password"
+             ngModel #passwordInput="ngModel" required minlength="{{ minLengthPassword }}" />
+      <mat-error *ngIf="passwordInput.invalid">Please enter a valid pasword (min. {{minLengthPassword}} chars are required)</mat-error>
+    </mat-form-field>
+
+    <div class="submit-buttons">
+      <button mat-raised-button color="primary" type="submit">Login</button>
+      <a mat-button color="active" [routerLink]="['/']">Cancel</a>
+    </div>
+
+  </form>
+</mat-card>

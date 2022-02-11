@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const app = express();
 const postRoutes = require('./routes/posts');
+const userRoutes = require('./routes/user');
 
 
 const dbName = 'database1';
@@ -26,6 +27,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/posts', postRoutes);
+app.use('/api/user', userRoutes);
 
 /*
 app.use("/", (req, res, next) => {

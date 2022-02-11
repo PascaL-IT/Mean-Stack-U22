@@ -29,8 +29,9 @@
                 formControlName="postContent"></textarea>
       <mat-error *ngIf="postForm.get('postContent')?.invalid">Please enter a valid content  (min. {{minLengthContent}} chars are required)</mat-error>
     </mat-form-field>
-    <div style="margin-right: 100%">
+    <div class="submit-buttons">
       <button mat-raised-button color="primary" type="submit">Save post</button>
+      <a mat-button color="active" [routerLink]="['/']">Cancel</a>
     </div>
   </form>
 </mat-card>
