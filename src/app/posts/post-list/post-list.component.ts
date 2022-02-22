@@ -3,6 +3,7 @@ import { Post } from "./post.model";
 import { PostsService } from "./posts.service";
 import { Subscription } from "rxjs";
 import { PageEvent } from "@angular/material/paginator";
+import { AuthService } from "src/app/auth/auth.service";
 
 
 @Component({
@@ -14,6 +15,7 @@ import { PageEvent } from "@angular/material/paginator";
 export class PostListComponent implements OnInit, OnDestroy {
 
   isLoading : boolean = false;
+  userIsAuthenticated : boolean = false;
   postList: Post[] = []; // array of Posts updated via our post service
   postListMax = 0; // total number of posts on MongoDB
 
@@ -23,11 +25,12 @@ export class PostListComponent implements OnInit, OnDestroy {
   pageSize = 5; // default
   pageSizeOptions = [1,2,3,4,5,10]; // 20,50,100
 
-  // Constructor used to inject the service (DI = dependency injection)
-  constructor(public postService: PostsService) { }; //
+  // Constructor used to inject services (DI = dependency injection)
+  constructor(public postService: PostsService, private authService: AuthService) { };
 
-  // Observer
-  private postSub: Subscription = new Subscription;
+  // Observer to be updated on posts
+  private postSub: Subscription = new Subscription();
+  private userStateSub: Subscription = new Subscription();
 
 
   ngOnInit(): void {
@@ -35,7 +38,7 @@ export class PostListComponent implements OnInit, OnDestroy {
     this.postService.getPosts(this.pageSize, this.pageIndex); // trigger the HTTP request to retrieve JSON data from REST API (async call)
                                                               // two parameters used for pagination
 
-    this.postSub = this.postService.getPostsUpdatedListener() // Listener on the Observable
+    this.postSub = this.postService.getPostsUpdatedListener() // Listener gives an Observable
                                    .subscribe( // Observer subscription
                                       ( responseData ) => {
                                           this.postList = responseData.posts;
@@ -46,12 +49,17 @@ export class PostListComponent implements OnInit, OnDestroy {
                                           this.isLoading = false;
                                       });
 
-
+    this.userIsAuthenticated = this.authService.getUserAuthStatus(); // TIP, required during initialization,
+                                                                     //  since no new event raised from below listener (user is already authenticate!)
+    this.userStateSub = this.authService.getAuthStatusListener()
+                                        .subscribe( event => {  this.userIsAuthenticated = event.state; // assign updated state
+                                                                console.log("PostListComponent - ngOnInit: userIsAuthenticated="+this.userIsAuthenticated); });
   };
 
   ngOnDestroy(): void {
-    this.postSub.unsubscribe;
-    // console.log("ngOnDestroy: unsubscribe observer on posts update"); // DEBUG
+    this.postSub.unsubscribe();
+    this.userStateSub.unsubscribe();
+    // console.log("ngOnDestroy: unsubscribe observer on posts and user's state updates"); // DEBUG
   }
 
   onDelete(postID : string) : void {
@@ -68,7 +76,7 @@ export class PostListComponent implements OnInit, OnDestroy {
   }
 
   onPageChange(event : PageEvent) {
-    // console.log("PostListComponent - onPageChange ..."); // DEBUG
+    // console.log("PostListComponent - onPageChange (paginator)..."); // DEBUG
     this.isLoading = true;
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
@@ -78,23 +86,6 @@ export class PostListComponent implements OnInit, OnDestroy {
   stringToHTML(text : string) : any {
     return new DOMParser().parseFromString(text, "text/html").documentElement.textContent;
   }
-
-
-  /* Obsoleted by pagination on backend (no more in memory)
-  onPaginationChange() {
-    let x = this.pageIndex * this.pageSize; // Start at 0
-    let y = this.pageSize * (this.pageIndex + 1); // step * (index + 1)
-
-    if (this.postListSize < this.pageSize || y > this.postListSize) {
-      y = this.postListSize; // limit to the max.
-    }
-
-    this.pageList = [];
-    for (let i=x; i<y; i++) {
-      this.pageList.push(this.postList[i]); // rebuild a list that matches the pagination params
-    }
-  }
-  */
 
 }
 

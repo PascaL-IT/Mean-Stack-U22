@@ -49,22 +49,22 @@ router.post('/login', (req, res, next) => {
   UserModel.findOne({ email: req.body.email })
            .then( user => {
               if (! user) {
-                return res.status(401) // 
-                          .json({ message: "Authentication failed!"})
+                return res.status(401) // Unauthorized
+                          .json({ message: "Authentication failed!" , result: 'no user' })
               }
               bcrypt.compare(req.body.password, user.password)
                     .then( result => {
                       if (! result) { // if false
                         return res.status(401) // Unauthorized
-                                  .json({ message: "Authentication failed!" , result: result });
+                                  .json({ message: "Authentication failed!" , result: 'compare is ' + result });
                       }
                       // As user's credentials are OK, we generate a token
                       const JWT_SECRET_KEY = '5F26F7B6E23236E725F51E8775F3A';  // https://randomkeygen.com/
                       const jwtoken = jwt.sign( { email: UserModel.email , id: UserModel._id } ,
                                                   JWT_SECRET_KEY ,
-                                                { expiresIn: "60s" , algorithm: 'HS256' } );
+                                                { expiresIn: "3600s" , algorithm: 'HS256' } ); // 1 hour
                       return res.status(200) // OK and provide a token
-                                .json({ token: jwtoken });
+                                .json({ token: jwtoken , expiresIn: 3600 }); // return the JWT along with the expiresIn value (3600 seconds)
                     })
                     .catch( error => {
                         return res.status(500) // Internal Server Error

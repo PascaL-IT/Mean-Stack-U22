@@ -2,6 +2,7 @@ const express = require('express');
 const PostModel = require('../models/post');
 const multer = require('multer');
 const router = express.Router();
+const CheckAuth = require('../middleware/check-auth');
 
 // Supported MimeTypes for images
 const MIME_TYPE_MAP = {
@@ -74,7 +75,7 @@ router.get('', (req, res, next) => {
 
 
 // REST API : POST (CREATE) -> store a new post into MongoDB, and the 'image' on disk drive
-router.post('', multer({storage: imageStorage}).single("image"), (req, res, next) => {
+router.post('', CheckAuth, multer({storage: imageStorage}).single("image"), (req, res, next) => {
   console.log('Server handles POST request to create and store a new post data ...');
 
   let imagePath;
@@ -110,7 +111,7 @@ router.post('', multer({storage: imageStorage}).single("image"), (req, res, next
 
 
 // REST API : DELETE (ERASE) -> delete a post from database with his _id
-router.delete('/:id', (req, res, next) => {
+router.delete('/:id', CheckAuth, (req, res, next) => {
   const postID = req.params.id;
   console.log('Server handles DELETE request for post id='+ postID);
   PostModel.deleteOne({ _id: postID })   // to delete one post from MongoDB
@@ -126,7 +127,7 @@ router.delete('/:id', (req, res, next) => {
 
 // REST API : PUT (UPDATE) -> replace fields of a post onto the database
 // Reminder on PATCH vs. PUT : https://blog.eq8.eu/article/put-vs-patch.html
-router.put('/:id', multer({storage: imageStorage}).single("image"), (req, res, next) => {
+router.put('/:id', CheckAuth, multer({storage: imageStorage}).single("image"), (req, res, next) => {
   const postID = req.params.id;
   console.log('Server handles PUT request to update post with id='+ postID);
   console.log(req.file); // DEBUG

@@ -41,7 +41,7 @@ export class PostsService {
                   // this.responseMessage = jsonData.message;
                   // this.responseMaxPosts = jsonData.maxPosts;
                   this.posts = jsonData.posts; // subset of list of posts
-                  this.postsUpdated.next({ posts: [...this.posts], postsMax: jsonData.maxPosts, pageSize: pageSize, pageIndex: pageIndex }); // Subject .next()
+                  this.postsUpdated.next({ posts: [...this.posts], postsMax: jsonData.maxPosts, pageSize: pageSize, pageIndex: pageIndex }); // Subject .next() => notify
                   console.log("PostsService: getPosts >> message: " + jsonData.message + " (total/max. of posts="+jsonData.maxPosts+")");
                 });
     // getPosts
@@ -74,7 +74,7 @@ export class PostsService {
                              imagePath: response.post.imagePath
                            };
         this.posts.push(post);
-        this.postsUpdated.next(posts: [...this.posts]); // Subject .next()
+        this.postsUpdated.next(posts: [...this.posts]);
         */
         console.log("PostsService: addPost >> " +  response.message);
         this.router.navigate(["/"]);
@@ -127,7 +127,7 @@ export class PostsService {
       // updatePost
   }
 
-
+  // Get the observable on updated posts
   getPostsUpdatedListener() {
     return this.postsUpdated.asObservable(); // observable
     // getPostsUpdatedListener

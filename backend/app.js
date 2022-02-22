@@ -19,9 +19,9 @@ app.use("/images", express.static(path.join('backend/images')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : false}));
 app.use((req, res, next) => {
-  // Set headers to avoid CORS errors
+  // Set headers to avoid CORS errors (Cross-Origin Resource Sharing)
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept" );
+  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization" );
   res.setHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, PATCH");
   next();
 });

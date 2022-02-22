@@ -6,17 +6,22 @@
   <ul>
       <li>
         <span>
-          <a mat-button routerLink="/create" routerLinkActive="mat-accent">New post</a>
+          <a mat-button routerLink="/create" routerLinkActive="mat-accent" [disabled]="!userIsAuthenticated">New post</a>
         </span>
       </li>
       <li>
         <span>
-          <a mat-button routerLink="/login" routerLinkActive="mat-accent">Login</a>
+          <a mat-button routerLink="/login" routerLinkActive="mat-accent" [disabled]="userIsAuthenticated">Login</a>
         </span>
       </li>
       <li>
         <span>
-          <a mat-button routerLink="/signup" routerLinkActive="mat-accent">Signup</a>
+          <a mat-button routerLink="/signup" routerLinkActive="mat-accent" [disabled]="userIsAuthenticated">Signup</a>
+        </span>
+      </li>
+      <li>
+        <span>
+          <a mat-button [disabled]="!userIsAuthenticated" (click)="onLogout()">Logout</a>
         </span>
       </li>
   </ul>

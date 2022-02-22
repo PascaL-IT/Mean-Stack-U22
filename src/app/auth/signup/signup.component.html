@@ -18,10 +18,11 @@
       <mat-error *ngIf="passwordInput.invalid">Please enter a valid pasword (min. {{minLengthPassword}} chars are required)</mat-error>
     </mat-form-field>
 
-    <div class="submit-buttons">
+    <div class="submit-buttons" *ngIf="!isLoading">
       <button mat-raised-button color="primary" type="submit">Signup</button>
       <a mat-button color="active" [routerLink]="['/']">Cancel</a>
     </div>
+    <mat-spinner *ngIf="isLoading"></mat-spinner>
 
   </form>
 </mat-card>

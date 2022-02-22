@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule} from '@angular/material/toolbar';
 import { MatExpansionModule} from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { MatPaginatorModule } from '@angular/material/paginator';
 
 
@@ -23,6 +23,7 @@ import { LoginComponent } from './auth/login/login.component';
 import { SignupComponent } from './auth/signup/signup.component';
 // import { PostsService } from './posts/post-list/posts.service'; // as @Injectable
 import { AuthService } from './auth/auth.service'; // vs. with @Injectable
+import { AuthInterceptor } from './auth/auth.interceptor';
 
 
 
@@ -47,7 +48,9 @@ import { AuthService } from './auth/auth.service'; // vs. with @Injectable
   ],
 
   // providers: [PostsService], // without @Injectable
-  providers: [Title, AuthService] ,    // inject Title
+  providers: [ { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true } , // inject interceptor
+               Title,          // inject Title
+               AuthService ] , // inject AuthService
   bootstrap: [AppComponent]
 })
 
