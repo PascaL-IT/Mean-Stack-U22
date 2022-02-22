@@ -9,7 +9,7 @@ export class AuthService {
 
   private baseUrl: string = 'http://localhost:3000/api/user/';
   private authToken: string = '';
-  private authTokenExpiresIn: number = 0;
+  private authTokenExpIn: number = 0;
   private authTokenTimer: any;
   private authStatus = new Subject<{ state : boolean }>(); // Subject (Active observable)
   private isUserAuthenticated: boolean = false;
@@ -38,23 +38,18 @@ export class AuthService {
 
     this.httpClient.post<{ token: string, expiresIn: number }>(this.baseUrl + 'login', authData) // see login API
       .subscribe( (response) => {
-        console.log("AuthService: loginUser...");
         this.authToken = response.token;
-        console.log('token: ' + this.authToken); // DEBUG
-        this.authTokenExpiresIn = response.expiresIn;
-        console.log('expiresIn: ' + this.authTokenExpiresIn); // DEBUG
+        this.authTokenExpIn = response.expiresIn;
 
         if (this.authToken.length > 0) {
           this.authStatus.next({ state : true }); // notify
           this.isUserAuthenticated = true;
-          /*
-          this.authTokenTimer = setTimeout( () => { console.log("Token expired!");
-                                                    this.logoutUser(); },
-                                            this.authTokenExpiresIn * 1000); // x 1000 as in milliseconds
-          */
-          this.setTimer();
+          this.saveTokenAuthData();
+          this.setAuthTimer();
+          console.log('AuthService - token: ' + this.authToken);
+          console.log('AuthService - expiresIn: ' + this.authTokenExpIn);
         }
-
+        console.log("AuthService - loginUser: isUserAuthenticated="+this.isUserAuthenticated);
         this.router.navigate(["/"]);
       });
 
@@ -84,10 +79,11 @@ export class AuthService {
   logoutUser() {
     this.authToken = '';
     this.isUserAuthenticated = false;
+    this.authTokenExpIn = 0;
     this.authStatus.next({ state : false }); // notify observers
     clearTimeout(this.authTokenTimer);
-    this.authTokenExpiresIn = 0;
-    console.log("AuthService - logoutUser: done... BYE");
+    this.clearTokenAuthData();
+    console.log("AuthService - logoutUser: user is logged out");
     this.router.navigate(["/"]);
   } // logoutUser
 
@@ -95,64 +91,64 @@ export class AuthService {
   // Store the authentication token data into the localStore
   private saveTokenAuthData() {
     localStorage.setItem('token', this.authToken);
-    localStorage.setItem('tokenDate', this.buildExpirationDate(this.authTokenExpiresIn));
+    localStorage.setItem('tokenIatDate', this.buildIsoDate(0));
+    localStorage.setItem('tokenExpDate', this.buildIsoDate(this.authTokenExpIn));
   } // saveTokenAuthData
 
 
   // Retrieve the authentication data from the localStore
   private getTokenAuthData() {
     const tokenString = localStorage.getItem('token');
-    const tokenDateString = localStorage.getItem('tokenDate');
-    if (!tokenString || !tokenDateString) {
+    const tokenExpDateString = localStorage.getItem('tokenExpDate');
+    if (!tokenString || !tokenExpDateString) {
       // nok, reset the authentication token data
-      return { token: '', tokenExpirationDate: new Date() }
+      return { token: '',
+               tokenExpDate: new Date() }
     }
     // ok, return the stored authentication token data
-    return { token: tokenString, tokenExpirationDate: new Date(tokenDateString) }
+    return { token: tokenString,
+             tokenExpDate: new Date(tokenExpDateString) }
   } // getTokenAuthData
 
 
   // Clear data from local storage
   private clearTokenAuthData() {
     localStorage.removeItem('token');
-    localStorage.removeItem('tokenDate');
+    localStorage.removeItem('tokenIatDate');
+    localStorage.removeItem('tokenExpDate');
   } // clearTokenAuthData()
 
 
-  // Build an expiration date
-  private buildExpirationDate(duration: number) : string {
+  // Build a date in ISO format
+  private buildIsoDate(duration: number) : string {
     const datetime = new Date(Date.now() + duration * 1000);
-    console.log(datetime);
-    console.log(datetime.toLocaleString());
-    console.log(datetime.toString());
-    return datetime.getDate().toLocaleString();
-  } // buildExpirationDate
+    return datetime.toISOString(); // e.g. 2022-02-22T15:36:33.492Z
+  } // buildIsoDate
 
 
   // Automatic user's authentication based on local storage data
   public autoUserLogin() {
       const authData = this.getTokenAuthData();
       const now = new Date();
-      const isInFuture = authData.tokenExpirationDate > now;
+      const isInFuture = authData.tokenExpDate > now;
       if (isInFuture && authData.token.length > 0) {
         this.authToken = authData.token;
         this.isUserAuthenticated = true;
-        this.authStatus.next({ state : true }); // notify observers
-        this.authTokenExpiresIn = (authData.tokenExpirationDate.getTime() - now.getTime()) / 1000;
+        this.authTokenExpIn = (authData.tokenExpDate.getTime() - now.getTime()) / 1000; // re-computed
         this.setAuthTimer();
-        console.log("AuthService - autoUserLogin: authTokenExpiresIn=" + this.authTokenExpiresIn);
+        this.authStatus.next({ state : true }); // notify observers
+        console.log("AuthService - autoUserLogin: user is logged in (authToken expiresIn=" + this.authTokenExpIn + ")");
       }
   } // autoUserLogin
 
 
-  // Set timer
+  // Set timer based on token's ExpiresIn value, logout user on timeout
   private setAuthTimer() {
     this.authTokenTimer = setTimeout(
-      () => {
-              console.log("Token has expired! => user logged out");
-              this.logoutUser();
-            }, this.authTokenExpiresIn * 1000); // x 1000 as in milliseconds
-  } // setTimer
+      () => { this.logoutUser(); // on timeout, call logoutUser
+              console.log("Token has expired. User is logged out !"); },
+              this.authTokenExpIn * 1000); // x 1000 as in milliseconds
+  } // setAuthTimer
 
 
 }

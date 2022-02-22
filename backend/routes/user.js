@@ -3,6 +3,7 @@ const UserModel = require('../models/user');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const jwtExpDuration = 3600; // Expiration duration seconds
 
 // REST PATH for USERS is '/api/user'
 
@@ -62,9 +63,9 @@ router.post('/login', (req, res, next) => {
                       const JWT_SECRET_KEY = '5F26F7B6E23236E725F51E8775F3A';  // https://randomkeygen.com/
                       const jwtoken = jwt.sign( { email: UserModel.email , id: UserModel._id } ,
                                                   JWT_SECRET_KEY ,
-                                                { expiresIn: "3600s" , algorithm: 'HS256' } ); // 1 hour
+                                                { expiresIn: jwtExpDuration + "s" , algorithm: 'HS256' } ); // s for 'in seconds'
                       return res.status(200) // OK and provide a token
-                                .json({ token: jwtoken , expiresIn: 3600 }); // return the JWT along with the expiresIn value (3600 seconds)
+                                .json({ token: jwtoken , expiresIn: jwtExpDuration }); // return the JWT along with the expiresIn value (seconds)
                     })
                     .catch( error => {
                         return res.status(500) // Internal Server Error

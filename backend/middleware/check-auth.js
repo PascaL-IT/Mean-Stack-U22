@@ -8,7 +8,7 @@ module.exports=(req, res, next) => {
                                                            //  Authorization: Bearer <token>
     const JWT_SECRET_KEY = '5F26F7B6E23236E725F51E8775F3A'; // TODO -> improve by using a .env file
     let result = jwt.verify(jwtoken, JWT_SECRET_KEY); // see https://github.com/auth0/node-jsonwebtoken
-    console.log("Check-auth -> jwt verify output: " + result); // DEBUG
+    console.log("Check-auth -> jwt: iat=" + result.iat + " , exp=" + result.exp); // https://datatracker.ietf.org/doc/html/rfc7519#page-9
     next();
 
   } catch(error) {

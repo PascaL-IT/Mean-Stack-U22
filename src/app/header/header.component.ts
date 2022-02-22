@@ -10,7 +10,7 @@ import { Subscription } from "rxjs";
 
 export class HeaderComponent implements OnInit, OnDestroy {
 
-  public userIsAuthenticated = false;
+  public userIsAuthenticated : boolean = false;
 
   constructor(private authService: AuthService) {}
 
@@ -19,6 +19,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // OnInit implementation
   ngOnInit(): void {
+    this.userIsAuthenticated = this.authService.getUserAuthStatus(); // TIP, required during initialization,
+                                                                     //  since no new event raised from below listener (user is already authenticate!)
     this.statusSub = this.authService.getAuthStatusListener()
                                      .subscribe( event => { this.userIsAuthenticated = event.state; // assign updated state
                                                  console.log("HeaderComponent - ngOnInit: userIsAuthenticated=" + this.userIsAuthenticated);

@@ -24,7 +24,8 @@ export class LoginComponent implements OnInit {
   onLogin(form: NgForm) {
     console.log("LoginComponent: onLogin...");
     if (form.invalid) {
-      console.log("Invalid form on login : " + form.value);
+      console.log("Invalid form on login");
+      console.log(form.value);
       return;
     }
     // Call to login an existing user

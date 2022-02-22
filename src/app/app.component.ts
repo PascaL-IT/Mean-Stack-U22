@@ -16,7 +16,7 @@ export class AppComponent {
 
   ngOnInit() {
     this.titleService.setTitle(this.title);
-    this.authService.
+    this.authService.autoUserLogin();
   }
 
 }
