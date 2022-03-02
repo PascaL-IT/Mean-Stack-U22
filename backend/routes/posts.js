@@ -89,7 +89,8 @@ router.post('', CheckAuth, multer({storage: imageStorage}).single("image"), (req
       id: null,
       title: req.body.title,
       content: req.body.content,
-      imagePath: imagePath
+      imagePath: imagePath,
+      creatorId: req.userData.id
   });
 
   console.log('New post to persist: ' + newPost);
@@ -114,13 +115,17 @@ router.post('', CheckAuth, multer({storage: imageStorage}).single("image"), (req
 router.delete('/:id', CheckAuth, (req, res, next) => {
   const postID = req.params.id;
   console.log('Server handles DELETE request for post id='+ postID);
-  PostModel.deleteOne({ _id: postID })   // to delete one post from MongoDB
+  PostModel.deleteOne({ _id: postID , creatorId: req.userData.id })   // to delete one post from MongoDB
            .then( result => {
-             console.log(result); // DEBUG
-             console.log('Post with _id=' + postID + ' successfully deleted on MongoDB');
-             return res.status(200)
-                       .json({ message: 'Post with id=' + postID + ' deleted on MongoDB (backend)' });
-             });
+                // console.log("DEBUG: PostModel.deleteOne"); // DEBUG
+                // console.log(result); // DEBUG
+                console.log('Post with _id=' + postID + ' successfully deleted on MongoDB');
+                if (result.deletedCount > 0) {
+                  return res.status(200).json({ message: 'Post with id=' + postID + ' deleted on MongoDB (backend)' });
+                } else {
+                  return res.status(401).json({ message: 'Post with id=' + postID + ' can NOT be deleted by this user !' });
+                }
+             })
   // router.post
 });
 
@@ -130,7 +135,7 @@ router.delete('/:id', CheckAuth, (req, res, next) => {
 router.put('/:id', CheckAuth, multer({storage: imageStorage}).single("image"), (req, res, next) => {
   const postID = req.params.id;
   console.log('Server handles PUT request to update post with id='+ postID);
-  console.log(req.file); // DEBUG
+  // console.log(req.file); // DEBUG
 
   let imagePath;
   if (req.file) {
@@ -143,18 +148,28 @@ router.put('/:id', CheckAuth, multer({storage: imageStorage}).single("image"), (
     _id: postID ,
     title: req.body.title ,
     content: req.body.content,
-    imagePath: imagePath
+    imagePath: imagePath,
+    creatorId: req.userData.id
   });
-
   console.log('Post to update: ' + updatedPost);
 
-  PostModel.updateOne({ _id: postID }, updatedPost) // to update one post into MongoDB
-           .then( (updateOneResult) => {
-             // console.log("DEBUG updateOneResult ...");
-             // console.log(updateOneResult); // DEBUG
-             console.log('Post with _id=' + postID + ' successfully updated on MongoDB');
-             return res.status(200)
-                       .json({ message: 'Post with id=' + postID + ' updated on MongoDB (backend)' });
+  // Check if the user is the post's owner
+  PostModel.findById(postID)
+           .then( (document) => {
+              if (document.creatorId !== req.userData.id) {
+                console.log('User_id='+req.userData.id + ' is NOT the creator of post_id=' + postID);
+                return res.status(401).json({ message: 'Post with id=' + postID + ' can NOT be updated by this user !' });
+           } });
+
+  // Update the document
+  PostModel.updateOne({ _id: postID , creatorId: req.userData.id }, updatedPost) // to update one post into MongoDB
+           .then( (result) => {
+             if (result.modifiedCount > 0) {
+               console.log('Post with _id=' + postID + ' successfully updated on MongoDB');
+             } else {
+               console.log('Post with _id=' + postID + ' not updated on MongoDB (same data)');
+             }
+             return res.status(200).json({ message: 'Post with id=' + postID + ' updated on MongoDB (backend)' });
            });
 
   // router.put (or router.patch)

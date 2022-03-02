@@ -30,7 +30,7 @@ export class PostCreateComponent implements OnInit {
 
   constructor(public postService: PostsService,
               public route: ActivatedRoute       ) {
-    this.pccPost = { id: '' , content: '' , title: '' , imagePath: '' };
+    this.pccPost = { id: '' , content: '' , title: '' , imagePath: '' , creatorId: '' };
   }
 
   ngOnInit(): void {
@@ -50,6 +50,7 @@ export class PostCreateComponent implements OnInit {
                                this.pccPost.id = postData.post._id;
                                this.pccPost.title = postData.post.title;
                                this.pccPost.content = postData.post.content;
+                               this.pccPost.creatorId = postData.post.creatorId;
                                let filePath = "";
                                if (this.pccPost.imagePath) {
                                  filePath = this.pccPost.imagePath;
@@ -57,7 +58,7 @@ export class PostCreateComponent implements OnInit {
                                }
                                // set form values
                                this.postForm.setValue({ 'postTitle' : this.pccPost.title,
-                                                        'postContent' : this.pccPost.content ,
+                                                        'postContent' : this.pccPost.content,
                                                         'postImage' : filePath
                                                       });
                                this.isLoading = false;
@@ -72,6 +73,7 @@ export class PostCreateComponent implements OnInit {
                                      'postContent': this.pccPost.content ,
                                      'postImage' : filePath
                                     });
+            this.isLoading = false;
           }
 
         // Creation mode
@@ -104,7 +106,7 @@ export class PostCreateComponent implements OnInit {
       || this.postForm.value.postTitle.length < this.minLengthTitle
       ) {
         console.log("Invalid form title ... (min. "+this.minLengthTitle+" chars");
-        console.log(this.postForm.value); // DEBUG
+        // console.log(this.postForm.value); // DEBUG
         return; // avoid emitting on invalid inputs
     }
 
@@ -112,7 +114,7 @@ export class PostCreateComponent implements OnInit {
       || this.postForm.value.postContent.length < this.minLengthContent
       ) {
         console.log("Invalid form content ... (min. "+this.minLengthContent+" chars");
-        console.log(this.postForm.value); // DEBUG
+        // console.log(this.postForm.value); // DEBUG
         return; // avoid emitting on invalid inputs
     }
 
@@ -155,7 +157,7 @@ export class PostCreateComponent implements OnInit {
     reader.readAsDataURL(file); // read the file
   }
 
-  // Method called to reset the image
+  // Method called to reset the image (clear)
   resetImagePicker() {
     this.imagePreview = '';
     if (this.pccPost.title || this.pccPost.content) {
@@ -163,6 +165,7 @@ export class PostCreateComponent implements OnInit {
     } else {
       this.postForm.setValue({ 'postImage' : this.imagePreview });
     }
+
   }
 
 }

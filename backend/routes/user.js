@@ -61,11 +61,13 @@ router.post('/login', (req, res, next) => {
                       }
                       // As user's credentials are OK, we generate a token
                       const JWT_SECRET_KEY = '5F26F7B6E23236E725F51E8775F3A';  // https://randomkeygen.com/
-                      const jwtoken = jwt.sign( { email: UserModel.email , id: UserModel._id } ,
+                      const jwtoken = jwt.sign( { email: user.email , id: user._id } ,
                                                   JWT_SECRET_KEY ,
-                                                { expiresIn: jwtExpDuration + "s" , algorithm: 'HS256' } ); // s for 'in seconds'
+                                                { expiresIn: jwtExpDuration + "s" , algorithm: 'HS256' } ); // s for 'in seconds' , hash & secret
                       return res.status(200) // OK and provide a token
-                                .json({ token: jwtoken , expiresIn: jwtExpDuration }); // return the JWT along with the expiresIn value (seconds)
+                                .json({ token: jwtoken , expiresIn: jwtExpDuration, userId: user._id }); // return the JWT
+                                                                                                         // along with the expiresIn value (seconds)
+                                                                                                         // and the userId
                     })
                     .catch( error => {
                         return res.status(500) // Internal Server Error

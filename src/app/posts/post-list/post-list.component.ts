@@ -16,6 +16,7 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   isLoading : boolean = false;
   userIsAuthenticated : boolean = false;
+  userId : string = '';
   postList: Post[] = []; // array of Posts updated via our post service
   postListMax = 0; // total number of posts on MongoDB
 
@@ -51,9 +52,12 @@ export class PostListComponent implements OnInit, OnDestroy {
 
     this.userIsAuthenticated = this.authService.getUserAuthStatus(); // TIP, required during initialization,
                                                                      //  since no new event raised from below listener (user is already authenticate!)
+    this.userId = this.authService.getAuthUserId();
+
     this.userStateSub = this.authService.getAuthStatusListener()
                                         .subscribe( event => {  this.userIsAuthenticated = event.state; // assign updated state
-                                                                console.log("PostListComponent - ngOnInit: userIsAuthenticated="+this.userIsAuthenticated); });
+                                                                this.userId = event.userid;  // assign updated userid
+                                                                console.log("PostListComponent - ngOnInit: userId="+ this.userId +" , userIsAuthenticated="+this.userIsAuthenticated); });
   };
 
   ngOnDestroy(): void {
