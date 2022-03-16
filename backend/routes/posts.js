@@ -58,17 +58,19 @@ router.get('', (req, res, next) => {
              if (postDocuments && postsCounter > 0) {
               console.log('Backend - size of posts=' + postDocuments.length + ' on a total of ' + postsCounter + ' (as Page size=' + pageSize + ' and index=' + pageIndex + ')');
               return res.status(200)
-              .json( { message: 'List of ' + postDocuments.length + ' posts successfully fetched for posting with pagination' ,
-                       posts: postDocuments,
-                       maxPosts: postsCounter
-                       } );
+                        .json( { message: 'List of ' + postDocuments.length + ' posts successfully fetched for posting with pagination' ,
+                                 posts: postDocuments,
+                                 maxPosts: postsCounter } );
+
              } else {
               console.log('Backend - size of posts=0 => no document found.');
-              return res.status(404)
-              .json( { message: 'List of posts is empty, no post found yet for posting ...' ,
-                       posts: null } );
+              return res.status(404).json( { message: 'Empty list (no post found)' ,
+                                             posts: null } );
              }
-   });
+   }).catch( (error) => {
+    console.log('List of posts not retrieved from MongoDB (server error)');
+    return res.status(500).json({ message: 'Failed to retrieve list of posts', posts: null });
+  });
 
   // router.get
 });
@@ -85,26 +87,31 @@ router.post('', CheckAuth, multer({storage: imageStorage}).single("image"), (req
     imagePath = req.body.imagePath; // string
   }
 
+  const userID = req.userData.userid;
   const newPost = new PostModel({
       id: null,
       title: req.body.title,
       content: req.body.content,
       imagePath: imagePath,
-      creatorId: req.userData.id
+      creatorId: userID
   });
 
-  console.log('New post to persist: ' + newPost);
+  console.log('New post to persist: ' + newPost + ', by ' + userID);
 
   newPost.save() // to store post into MongoDB
          .then( savePostResult => {
-                  console.log('Post with new _id=' + savePostResult._id +' successfully saved into MongoDB');
+                  console.log('Post ' + savePostResult._id +' successfully saved into MongoDB, by ' + userID);
                   return res.status(201)
-                            .json({ message: 'New post saved successfully to MongoDB (backend)' ,
+                            .json({ message: 'New post successfully saved' ,
                                     post: {
                                             ...savePostResult, // shortcut to copy all fields
                                             id: savePostResult._id // add the id field for client
                                     }
                          }) // return the postID of the newly created post
+         .catch( error => {
+                  console.log('Post ' + savePostResult._id +' not saved into MongoDB, by ' + userID + ' (server error)');
+                  return res.status(500).json({ message: 'Failed to save new post !', post: null })
+         })
         } );
 
   // router.post
@@ -114,18 +121,23 @@ router.post('', CheckAuth, multer({storage: imageStorage}).single("image"), (req
 // REST API : DELETE (ERASE) -> delete a post from database with his _id
 router.delete('/:id', CheckAuth, (req, res, next) => {
   const postID = req.params.id;
-  console.log('Server handles DELETE request for post id='+ postID);
-  PostModel.deleteOne({ _id: postID , creatorId: req.userData.id })   // to delete one post from MongoDB
+  const userID = req.userData.userid;
+  console.log('Server handles DELETE request for post id='+ postID + ', by user id=' + userID);
+  PostModel.deleteOne({ _id: postID , creatorId: userID })   // to delete one post from MongoDB
            .then( result => {
                 // console.log("DEBUG: PostModel.deleteOne"); // DEBUG
                 // console.log(result); // DEBUG
-                console.log('Post with _id=' + postID + ' successfully deleted on MongoDB');
                 if (result.deletedCount > 0) {
-                  return res.status(200).json({ message: 'Post with id=' + postID + ' deleted on MongoDB (backend)' });
+                  console.log('Post ' + postID + ' successfully deleted on MongoDB, by ' + userID);
+                  return res.status(200).json({ message: 'Post with id=' + postID + ' successfully deleted' });
                 } else {
-                  return res.status(401).json({ message: 'Post with id=' + postID + ' can NOT be deleted by this user !' });
+                  console.log('Post ' + postID + ' not deleted on MongoDB, by ' + userID);
+                  return res.status(401).json({ message: 'User not authorized to delete this post !' });
                 }
-             })
+             }).catch( (error) => {
+               console.log('Post ' + postID + ' not deleted on MongoDB, by ' + userID + ' (server error)');
+               return res.status(500).json({ message: 'Failed to delete post ' + postID + ' !'});
+             });
   // router.post
 });
 
@@ -134,7 +146,8 @@ router.delete('/:id', CheckAuth, (req, res, next) => {
 // Reminder on PATCH vs. PUT : https://blog.eq8.eu/article/put-vs-patch.html
 router.put('/:id', CheckAuth, multer({storage: imageStorage}).single("image"), (req, res, next) => {
   const postID = req.params.id;
-  console.log('Server handles PUT request to update post with id='+ postID);
+  const userID = req.userData.userid;
+  console.log('Server handles PUT request to update post id='+ postID + ', by ' + userID);
   // console.log(req.file); // DEBUG
 
   let imagePath;
@@ -149,31 +162,37 @@ router.put('/:id', CheckAuth, multer({storage: imageStorage}).single("image"), (
     title: req.body.title ,
     content: req.body.content,
     imagePath: imagePath,
-    creatorId: req.userData.id
+    creatorId: userID
   });
-  console.log('Post to update: ' + updatedPost);
+  // console.log('Post to be updated: ' + updatedPost + ' by ' + userID ); // DEBUG
 
   // Check if the user is the post's owner
-  PostModel.findById(postID)
+  PostModel.findOne({ _id: postID , creatorId: userID })
            .then( (document) => {
-              if (document.creatorId !== req.userData.id) {
-                console.log('User_id='+req.userData.id + ' is NOT the creator of post_id=' + postID);
-                return res.status(401).json({ message: 'Post with id=' + postID + ' can NOT be updated by this user !' });
-           } });
-
-  // Update the document
-  PostModel.updateOne({ _id: postID , creatorId: req.userData.id }, updatedPost) // to update one post into MongoDB
-           .then( (result) => {
-             if (result.modifiedCount > 0) {
-               console.log('Post with _id=' + postID + ' successfully updated on MongoDB');
-             } else {
-               console.log('Post with _id=' + postID + ' not updated on MongoDB (same data)');
-             }
-             return res.status(200).json({ message: 'Post with id=' + postID + ' updated on MongoDB (backend)' });
-           });
-
-  // router.put (or router.patch)
-});
+              // No update on no document found
+              if (! document) {
+                console.log('User ' + userID + ' is not the creator of post ' + postID);
+                return res.status(401).json({ message: 'User not authorized to update this post !' });
+              }
+              // Update the document
+              console.log('User ' + userID + ' is allowed to update post ' + postID  + ' as owner'); // creator
+              PostModel.updateOne({ _id: postID , creatorId: userID }, updatedPost) // to update one post into MongoDB
+                       .then( (result) => {
+                          if (result.modifiedCount > 0) {
+                            console.log('Post ' + postID + ' successfully updated on MongoDB, by ' + userID);
+                            return res.status(200).json({ message: 'Post with id=' + postID + ' successfully updated'});
+                          } else {
+                            console.log('Post ' + postID + ' not updated on MongoDB (no modification detected)');
+                            return res.status(200).json({ message: 'Post ' + postID + ' has no field to update' });
+                          }
+                       }).catch(
+                         (error) => {
+                            console.log('Post ' + postID + ' not updated on MongoDB, by ' + userID + ' (server error)');
+                            return res.status(500).json({ message: 'Failed to update post with id=' + postID + ' !'});
+                         }
+                       );
+          });
+}); // UPDATE (router.put)
 
 
 // REST API : GET (READ) -> retrieve a post from the database, by his Id
@@ -185,18 +204,20 @@ router.get('/:id', (req, res, next) => {
   PostModel.findById({ _id: postID }) // to get one post from MongoDB
            .then( (post) => {
              if (post) {
-                console.log('Post with _id=' + postID + ' found on MongoDB : ' + post);
+                console.log('Post ' + postID + ' found on MongoDB');
+                console.log(post);
                 return res.status(200)
-                          .json( { message: 'Post with id=' + postID + ' found on MongoDB (backend)' ,
+                          .json( { message: 'Found a post with id=' + postID,
                                    post: post } );
              } else {
                 return res.status(404)
-                          .json({ message: 'No post found with id=' + postID + ' on MongoDB (backend)' ,
+                          .json({ message: 'No post found with id=' + postID,
                                   post: null });
-             }
-           });
+             } }).catch( (error) => {
+               console.log('Post ' + postID + ' is not found on MongoDB (server error)');
+               return res.status(500).json({ message: 'No post found with id=' + postID, post: null });
+             });
+}); // READ (router.get)
 
-  // router.get
-});
 
 module.exports = router;

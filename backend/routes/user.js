@@ -18,14 +18,13 @@ router.post('/signup', (req, res, next) => {
               email: req.body.email,
               password: hashPwd
             });
-
-            console.log('New user to persist: ' + newUser);
+            // console.log('Going to persist user: ' + newUser); // DEBUG
 
             newUser.save() // to store user MongoDB
             .then( saveUserResult => {
                      console.log('User with new _id=' + saveUserResult._id +' successfully saved into MongoDB');
                      return res.status(201)
-                               .json({ message: 'New user saved successfully to MongoDB (backend)' ,
+                               .json({ message: 'New user successfully created' ,
                                        result: { ...saveUserResult, // shortcut to copy all fields
                                                  id: saveUserResult._id // add the id field for client
                                                }
@@ -33,14 +32,18 @@ router.post('/signup', (req, res, next) => {
                   })
             .catch(
                 saveUserError => {
-                  console.log('Failed to create user with email: ' + req.body.email +' - not saved into MongoDB');
+                  console.log('Failed to create user with ' + req.body.email +' into MongoDB (server error)');
+                  // console.log(saveUserError.errors); // DEBUG on signup
                   return res.status(500)
-                            .json({ message: 'Failed to create user with email=' + req.body.email + ' onto MongoDB (backend)' ,
-                                    result: saveUserError
+                            .json({ message: 'Email address already in use !',
+                                    result: saveUserError.errors
                           });
             });
 
-        }).catch( error => { console.log("bcrypt.hash failed with error=" + error)});
+        }).catch( error => { console.log("Bcrypt.hash failed with error=" + error + " and email=" + req.body.email + ' (server error)');
+                             return res.status(500)
+                                       .json({ message: 'Failed to create user', result: error })
+                 })
 });
 // router.post
 
@@ -51,13 +54,13 @@ router.post('/login', (req, res, next) => {
            .then( user => {
               if (! user) {
                 return res.status(401) // Unauthorized
-                          .json({ message: "Authentication failed!" , result: 'no user' })
+                          .json({ message: "Authentication failed !" , result: 'no user' })
               }
               bcrypt.compare(req.body.password, user.password)
                     .then( result => {
                       if (! result) { // if false
                         return res.status(401) // Unauthorized
-                                  .json({ message: "Authentication failed!" , result: 'compare is ' + result });
+                                  .json({ message: "Authentication failed !" , result: 'compare is ' + result });
                       }
                       // As user's credentials are OK, we generate a token
                       const JWT_SECRET_KEY = '5F26F7B6E23236E725F51E8775F3A';  // https://randomkeygen.com/
@@ -71,7 +74,7 @@ router.post('/login', (req, res, next) => {
                     })
                     .catch( error => {
                         return res.status(500) // Internal Server Error
-                                  .json({ message: "Authentication error!" , error: error });
+                                  .json({ message: "Authentication error !" , error: error });
                     })
            })
 });

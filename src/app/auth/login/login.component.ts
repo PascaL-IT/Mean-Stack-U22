@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../auth.service';
+import { Subscription } from "rxjs";
 
 @Component({
   selector: 'app-login',
@@ -8,17 +9,28 @@ import { AuthService } from '../auth.service';
   styleUrls: ['./login.component.css']
 })
 
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
 
   loginLabel : string = 'Please enter your credentials to login :';
   isLoading : boolean = false;
-
   minLengthPassword : number = 8;
 
-  constructor(public authService: AuthService) {};
+  // Observer to be updated on user's status
+  private statusSub: Subscription = new Subscription();
+
+  constructor(private authService: AuthService) {};
 
   ngOnInit(): void {
     console.log("LoginComponent: ngOnInit...");
+    this.authService.getAuthStatusListener().subscribe(
+      event => { this.isLoading = event.state;
+                 console.log("LoginComponent - ngOnInit: isLoading=" + this.isLoading);
+                 console.log(event);  });
+  } // ngOnInit
+
+  ngOnDestroy(): void {
+    console.log("LoginComponent: ngOnDestroy...");
+    this.statusSub.unsubscribe();
   }
 
   onLogin(form: NgForm) {

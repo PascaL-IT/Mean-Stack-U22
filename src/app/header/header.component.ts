@@ -23,9 +23,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
                                                                      //  since no new event raised from below listener (user is already authenticate!)
     this.statusSub = this.authService.getAuthStatusListener()
                                      .subscribe( event => { this.userIsAuthenticated = event.state; // assign updated state
-                                                 console.log("HeaderComponent - ngOnInit: userIsAuthenticated=" + this.userIsAuthenticated);
-                                      });
-  }
+                                                            console.log("HeaderComponent - ngOnInit: userIsAuthenticated=" + this.userIsAuthenticated);
+                                                          });
+  } // ngOnInit
 
   // OnDestroy implementation
   ngOnDestroy(): void {

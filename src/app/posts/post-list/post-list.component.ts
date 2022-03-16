@@ -58,13 +58,12 @@ export class PostListComponent implements OnInit, OnDestroy {
                                         .subscribe( event => {  this.userIsAuthenticated = event.state; // assign updated state
                                                                 this.userId = event.userid;  // assign updated userid
                                                                 console.log("PostListComponent - ngOnInit: userId="+ this.userId +" , userIsAuthenticated="+this.userIsAuthenticated); });
-  };
+  }; // ngOnInit
 
   ngOnDestroy(): void {
     this.postSub.unsubscribe();
     this.userStateSub.unsubscribe();
-    // console.log("ngOnDestroy: unsubscribe observer on posts and user's state updates"); // DEBUG
-  }
+  } // ngOnDestroy
 
   onDelete(postID : string) : void {
     this.isLoading = true;
@@ -77,7 +76,7 @@ export class PostListComponent implements OnInit, OnDestroy {
           }
           this.postService.getPosts(this.pageSize, this.pageIndex); // get posts
      });
-  }
+  } // onDelete
 
   onPageChange(event : PageEvent) {
     // console.log("PostListComponent - onPageChange (paginator)..."); // DEBUG
@@ -85,7 +84,7 @@ export class PostListComponent implements OnInit, OnDestroy {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
     this.postService.getPosts(this.pageSize, this.pageIndex); // re-trigger the HTTP request
-  }
+  } // onPageChange
 
   stringToHTML(text : string) : any {
     return new DOMParser().parseFromString(text, "text/html").documentElement.textContent;

@@ -11,6 +11,7 @@ import { MatExpansionModule} from '@angular/material/expansion';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatDialogModule } from '@angular/material/dialog'
 
 
 // My Application modules
@@ -24,7 +25,8 @@ import { SignupComponent } from './auth/signup/signup.component';
 // import { PostsService } from './posts/post-list/posts.service'; // as @Injectable
 import { AuthService } from './auth/auth.service'; // vs. with @Injectable
 import { AuthInterceptor } from './auth/auth.interceptor';
-
+import { ErrorInterceptor } from './error.interceptor';
+import { ErrorComponent } from './error/error.component';
 
 
 @NgModule({
@@ -33,7 +35,8 @@ import { AuthInterceptor } from './auth/auth.interceptor';
     HeaderComponent,
     PostCreateComponent, PostListComponent,
     SanitizeHtmlPipe,
-    LoginComponent, SignupComponent
+    LoginComponent, SignupComponent,
+    ErrorComponent
   ],
   imports: [
     AppRoutingModule,
@@ -44,14 +47,16 @@ import { AuthInterceptor } from './auth/auth.interceptor';
     MatToolbarModule, MatExpansionModule,
     MatProgressSpinnerModule,
     HttpClientModule,
-    MatPaginatorModule
+    MatPaginatorModule, MatDialogModule
   ],
 
   // providers: [PostsService], // without @Injectable
-  providers: [ { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true } , // inject interceptor
+  providers: [ { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true } , // inject Auth interceptor
+               { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true } , // inject Error interceptor
                Title,          // inject Title
                AuthService ] , // inject AuthService
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent] ,
+  entryComponents: [ErrorComponent] // Entry component (deprecated)
 })
 
 export class AppModule { }

@@ -10,12 +10,12 @@ module.exports=(req, res, next) => {
     const result = jwt.verify(jwtoken, JWT_SECRET_KEY, { algorithms: [ 'HS256' ] , complete: true } ); // see https://github.com/auth0/node-jsonwebtoken
     // console.log(result); // DEBUG - https://datatracker.ietf.org/doc/html/rfc7519#page-9
     req.userData = { email: result.payload.email ,
-                     id: result.payload.id         }; // add user's email and id to the request for next treatments (TIP)
+                     userid: result.payload.id         }; // add user's email and id to the request for next treatments (TIP)
     next();
 
   } catch(error) {
     console.log("Check-auth -> error: " + error);
-    res.status(401).json({ error: "Authentication failed - invalid token !" });
+    res.status(401).json({ message: "Authentication failed (invalid token) !" });
   }
 
 }

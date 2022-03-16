@@ -26,6 +26,7 @@ export class PostsService {
   // This function retrieves the posts from the backend database as per the pagination params
   getPosts(pageSize: number, pageIndex: number) {
     const pageQueryParams : string = "?pagesize=" + pageSize + '&pageindex=' + pageIndex;
+
     this.httpClient
               .get<{ message: string, posts: any, maxPosts: number }>(this.baseUrl + pageQueryParams)
               .pipe( map( (jsonData) => { // transform by mapping _id to id
@@ -45,6 +46,9 @@ export class PostsService {
                   this.posts = jsonData.posts; // subset of list of posts
                   this.postsUpdated.next({ posts: [...this.posts], postsMax: jsonData.maxPosts, pageSize: pageSize, pageIndex: pageIndex }); // Subject .next() => notify
                   console.log("PostsService: getPosts >> message: " + jsonData.message + " (total/max. of posts="+jsonData.maxPosts+")");
+                } , (error) => {
+                  console.log("PostsService: getPosts >> status: " + error.status + " , error: " + error.statusText);
+                  this.postsUpdated.next({ posts: [  { id: '', title:  error.statusText, content: error.status, imagePath: '', creatorId: '' } ], postsMax: 1, pageSize: 0, pageIndex: 0 }); // Subject .next() => notify
                 });
     // getPosts
   }
@@ -117,14 +121,11 @@ export class PostsService {
 
       this.httpClient.put<{ message: string }>(this.baseUrl + postId, postData)
                      .subscribe( (response) => { // observer
-                        console.log("PostsService: updatePost >> response=" + response.message);
-                        this.router.navigate(["/"]);
-                     }
-                     ,
-                        (error: any) => { // observer
+                          console.log("PostsService: updatePost >> response=" + response.message);
+                          this.router.navigate(["/"]); }
+                               , (error: any) => { // observer
                           console.log("PostsService: updatePost >> error=" + error.message);
-                          this.router.navigate(["/"]);
-                     });
+                          this.router.navigate(["/"]); });
   } // updatePost
 
   // Get the observable on updated posts

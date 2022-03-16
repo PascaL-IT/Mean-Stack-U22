@@ -25,11 +25,17 @@ export class AuthService {
     const authData : AuthData = { email: email, password: password };
 
     this.httpClient.post(this.baseUrl + 'signup', authData)
-                   .subscribe( (response) => {
-                         console.log("AuthService: createUser...");
-                         // console.log(response); // DEBUG
-                         this.router.navigate(["/"]);      });
-  } // createUser
+                   .subscribe(
+                        (response) => {
+                           console.log("AuthService: createUser response...");
+                           // console.log(response); // DEBUG
+                           this.router.navigate(["/"]); } ,
+                        (error) => {
+                           console.log("AuthService: createUser error...");
+                           // console.log(error); // DEBUG
+                           this.authStatus.next({ state : this.isUserAuthenticated , userid : this.authUserId  }); // notify observers
+                        });
+  } // createUser (signup)
 
 
   // Login an existing user with his credentials to authenticate
@@ -38,24 +44,30 @@ export class AuthService {
 
     this.httpClient.post<{ token: string, expiresIn: number, userId: string }>(this.baseUrl + 'login', authData) // see login API
       .subscribe( (response) => {
-        this.authToken = response.token;
-        this.authTokenExpIn = response.expiresIn;
+            this.authToken = response.token;
+            this.authTokenExpIn = response.expiresIn;
 
-        if (this.authToken.length > 0) {
-          this.isUserAuthenticated = true;
-          this.authUserId = response.userId;
-          this.authStatus.next({ state : this.isUserAuthenticated , userid : this.authUserId }); // notify
-          this.saveTokenAuthData();
-          this.setAuthTimer();
-          console.log('AuthService - userId: ' + this.authUserId +
-                                 ' , expiresIn: ' + this.authTokenExpIn +
-                                 ' , token: ' + this.authToken);
-        }
-        console.log("AuthService - loginUser: isUserAuthenticated="+this.isUserAuthenticated);
-        this.router.navigate(["/"]);
-      });
+            if (this.authToken.length > 0) {
+              this.isUserAuthenticated = true;
+              this.authUserId = response.userId;
+              this.authStatus.next({ state : this.isUserAuthenticated , userid : this.authUserId }); // notify
+              this.saveTokenAuthData();
+              this.setAuthTimer();
+              console.log('AuthService - userId: ' + this.authUserId +
+                                    ' , expiresIn: ' + this.authTokenExpIn +
+                                    ' , token: ' + this.authToken);
+            }
+            console.log("AuthService - loginUser: isUserAuthenticated="+this.isUserAuthenticated);
+            this.router.navigate(["/"]); }
+        ,
+                  (error) => {
+                      console.log("AuthService: loginUser error...");
+                      // console.log(error); // DEBUG
+                      this.authStatus.next({ state : this.isUserAuthenticated , userid : this.authUserId  }); // notify observers
+                  }
+      );
 
-  } // loginUser
+  } // loginUser (login)
 
 
   // Get the current authentication token (JWT)

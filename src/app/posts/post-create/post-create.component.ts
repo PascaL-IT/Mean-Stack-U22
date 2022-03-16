@@ -1,6 +1,8 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, ParamMap } from "@angular/router";
+import { Subscription } from "rxjs";
+import { AuthService } from "src/app/auth/auth.service";
 import { Post } from "../post-list/post.model";
 import { PostsService } from "../post-list/posts.service";
 import { mimeType } from "./mime-type.validator";
@@ -11,7 +13,7 @@ import { mimeType } from "./mime-type.validator";
   styleUrls: ["./post-create.component.css"]
 })
 
-export class PostCreateComponent implements OnInit {
+export class PostCreateComponent implements OnInit, OnDestroy {
 
   private mode: string = 'create'; // edit | create
 
@@ -28,12 +30,24 @@ export class PostCreateComponent implements OnInit {
     'postImage' : new FormControl(null, { asyncValidators: [mimeType] , validators: [Validators.nullValidator] })
   })
 
+    // Observer to be updated on user's status
+    private statusSub: Subscription = new Subscription();
+
   constructor(public postService: PostsService,
-              public route: ActivatedRoute       ) {
+              public route: ActivatedRoute,
+              private authService: AuthService       ) {
     this.pccPost = { id: '' , content: '' , title: '' , imagePath: '' , creatorId: '' };
   }
 
   ngOnInit(): void {
+    console.log("PostCreateComponent: ngOnInit...");
+    this.statusSub = this.authService.getAuthStatusListener()
+                         .subscribe(
+                           event => { this.isLoading = event.state;
+                                      console.log("PostCreateComponent - ngOnInit: isLoading=" + this.isLoading);
+                                      console.log(event);
+                                    });
+
     this.route.url.subscribe((url) => { this.mode = url[0].path }); // find the mode by analysing the route path
     this.route.paramMap.subscribe( (paramMap: ParamMap) =>
       {
@@ -92,6 +106,10 @@ export class PostCreateComponent implements OnInit {
       }
     )
     console.log("PostCreateComponent - ngOnInit: mode=" + this.mode);
+  } // ngOnInit
+
+  ngOnDestroy(): void {
+    this.statusSub.unsubscribe();
   }
 
   // Method called on Save button click
@@ -135,7 +153,7 @@ export class PostCreateComponent implements OnInit {
     }
 
     this.postForm.reset();
-  }
+  } // onSavePostValue
 
 
   // Method called on Pick Image button click
@@ -155,7 +173,8 @@ export class PostCreateComponent implements OnInit {
        // console.log(this.imagePreview);  // DEBUG
     };
     reader.readAsDataURL(file); // read the file
-  }
+  } // onPickImage
+
 
   // Method called to reset the image (clear)
   resetImagePicker() {
@@ -165,7 +184,6 @@ export class PostCreateComponent implements OnInit {
     } else {
       this.postForm.setValue({ 'postImage' : this.imagePreview });
     }
-
-  }
+  } // resetImagePicker
 
 }
