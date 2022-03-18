@@ -31,7 +31,8 @@
     </mat-form-field>
     <div class="submit-buttons">
       <button mat-raised-button color="primary" type="submit">Save post</button>
-      <a mat-button color="active" [routerLink]="['/']">Cancel</a>
+      <a mat-button color="active" [routerLink]="['/']"
+                                   [queryParams]="{ pagesize: currentPageSize , pageindex: currentPageIndex }">Cancel</a>
     </div>
   </form>
 </mat-card>

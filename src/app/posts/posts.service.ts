@@ -13,9 +13,9 @@ export class PostsService {
 
   private posts: Post[] = [];
   private postsUpdated = new Subject<{ posts: Post[], postsMax: number, pageSize: number, pageIndex: number }>(); // Subject (Active observable)
-
-  // private responseMessage : string = '';
-  // private responseMaxPosts : number = 0;
+  private currentPageSize = 0;
+  private currentPageIndex = 0;
+  private currentPostsMax = 0;
 
   // Constructor
   private httpClient;
@@ -41,17 +41,18 @@ export class PostsService {
                                            creatorId: post.creatorId  };
                                } ) } } ) )
               .subscribe( (jsonData) => { // observer
-                  // this.responseMessage = jsonData.message;
-                  // this.responseMaxPosts = jsonData.maxPosts;
                   this.posts = jsonData.posts; // subset of list of posts
+                  this.currentPageSize = pageSize;
+                  this.currentPageIndex = pageIndex;
+                  this.currentPostsMax = jsonData.maxPosts;
                   this.postsUpdated.next({ posts: [...this.posts], postsMax: jsonData.maxPosts, pageSize: pageSize, pageIndex: pageIndex }); // Subject .next() => notify
                   console.log("PostsService: getPosts >> message: " + jsonData.message + " (total/max. of posts="+jsonData.maxPosts+")");
                 } , (error) => {
                   console.log("PostsService: getPosts >> status: " + error.status + " , error: " + error.statusText);
                   this.postsUpdated.next({ posts: [  { id: '', title:  error.statusText, content: error.status, imagePath: '', creatorId: '' } ], postsMax: 1, pageSize: 0, pageIndex: 0 }); // Subject .next() => notify
                 });
-    // getPosts
-  }
+  } // getPosts
+
 
   // This function add a new post to the backend database, and store a file if any
   addPost(postTitle: string, postContent: string, postImage: File | string) {
@@ -68,23 +69,29 @@ export class PostsService {
       postData.append("id", '');
       postData.append("title", postTitle);
       postData.append("content", postContent);
-      postData.append("image", postImage, postImage.name); // as multer({storage: imageStorage}).single("image")
+      postData.append("image", postImage, postImage.name); // "image" as multer({storage: imageStorage}).single("image")
     }
 
     this.httpClient.post<{message: string, post: Post}>(this.baseUrl, postData)
-     .subscribe( (response) => { // observer
-        console.log("PostsService: addPost >> " +  response.message);
-        this.router.navigate(["/"]);
-     });
-    // addPost
-  }
+                   .subscribe( (response) => { // observer
+                      console.log("PostsService: addPost >> " + response.message);
+                      let computedPageIndex = Math.trunc((this.currentPostsMax + 1) / this.currentPageSize);
+                      if ( ((this.currentPostsMax + 1) % this.currentPageSize) == 0 ) {
+                        computedPageIndex -= 1;
+                      }
+                      this.router.navigate(["/"], { queryParams: { pagesize: this.currentPageSize ,
+                                                                   pageindex: computedPageIndex } }); // go to end of list
+                    } , (error) => {
+                      console.log("PostsService: addPost >> error=" + error.message);
+                      this.router.navigate(["/"]);
+                    });
+  } // addPost
 
 
   // This function delete an existing post on the backend database, by his ID
   deletePost(postId: string) {
     return this.httpClient.delete<{message: string}>(this.baseUrl + postId); // TIP : return an Observable
-    // deletePost
-  }
+  } // deletePost
 
 
   // This function retrieves a post available in memory, by his Id
@@ -94,7 +101,7 @@ export class PostsService {
                    + post.title + ' , content=' + post.content + ' , imagePath=' + post.imagePath
                    + ' , creatorId=' + post.creatorId );
      return post;
-  }
+  } // getMemoryPost
 
 
   // This function retrieves a post available in database, by his Id (return an Observable)
@@ -102,7 +109,7 @@ export class PostsService {
     console.log("PostsService: getPost >> post id=" + postId);
     return this.httpClient.get<{ message: string ,
                                  post: { _id: string, title: string, content: string, imagePath: string, creatorId: string } }>(this.baseUrl + postId);
-  }
+  } // getPost
 
 
   // This function update an existing post on the backend database, by his ID
@@ -116,22 +123,24 @@ export class PostsService {
         postData.append("id", postId);
         postData.append("title", postTitle);
         postData.append("content", postContent);
-        postData.append("image", postImage, postImage.name); // as multer({storage: imageStorage}).single("image")
+        postData.append("image", postImage, postImage.name); // "image" as multer({storage: imageStorage}).single("image")
       }
 
       this.httpClient.put<{ message: string }>(this.baseUrl + postId, postData)
                      .subscribe( (response) => { // observer
                           console.log("PostsService: updatePost >> response=" + response.message);
-                          this.router.navigate(["/"]); }
-                               , (error: any) => { // observer
+                          this.router.navigate(["/"], { queryParams: { pagesize: this.currentPageSize ,
+                                                                       pageindex: this.currentPageIndex } });
+                          } , (error: any) => { // observer
                           console.log("PostsService: updatePost >> error=" + error.message);
-                          this.router.navigate(["/"]); });
+                          this.router.navigate(["/"]);
+                     });
   } // updatePost
+
 
   // Get the observable on updated posts
   getPostsUpdatedListener() {
     return this.postsUpdated.asObservable(); // observable
-    // getPostsUpdatedListener
-  }
+  } // getPostsUpdatedListener
 
 }
