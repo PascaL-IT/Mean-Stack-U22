@@ -3,12 +3,13 @@
   <mat-expansion-panel *ngFor="let post of postList">
     <mat-expansion-panel-header>{{ post['title'] }}</mat-expansion-panel-header>
     <div class="image-preview" *ngIf="post.imagePath">
-      <img [src]="post.imagePath" alt="post.title" />
+      <img [src]="post.imagePath" alt="post.title"
+           onClick="window.open(this.src)" role="button" tabIndex="0" />
     </div>
     <!-- {{ post['content'] }} -->
     <div [innerHTML]="stringToHTML(post['content']) | sanitizeHtml"></div>
     <mat-action-row *ngIf="userIsAuthenticated && userId === post.creatorId">
-      <a mat-button color="primary" [routerLink]="['/edit', post.id]">EDIT</a>
+      <a mat-button color="primary" [routerLink]="['/edit', post.id]" [queryParams]="{ pagesize: pageSize , pageindex: pageIndex }">EDIT</a>
       <button mat-button color="warn" (click)="onDelete(post.id)" >DELETE</button>
     </mat-action-row>
   </mat-expansion-panel>
@@ -21,4 +22,3 @@
                (page)="onPageChange($event)"
                aria-label="Select page" *ngIf="postList.length > 0">
 </mat-paginator>
-

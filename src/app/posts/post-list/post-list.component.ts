@@ -1,9 +1,10 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { Post } from "./post.model";
-import { PostsService } from "./posts.service";
+import { Post } from "../post.model";
+import { PostsService } from "../posts.service";
 import { Subscription } from "rxjs";
 import { PageEvent } from "@angular/material/paginator";
 import { AuthService } from "src/app/auth/auth.service";
+import { ActivatedRoute, ParamMap } from "@angular/router";
 
 
 @Component({
@@ -27,7 +28,9 @@ export class PostListComponent implements OnInit, OnDestroy {
   pageSizeOptions = [1,2,3,4,5,10]; // 20,50,100
 
   // Constructor used to inject services (DI = dependency injection)
-  constructor(public postService: PostsService, private authService: AuthService) { };
+  constructor(public postService: PostsService,
+              public route: ActivatedRoute,
+              private authService: AuthService) { };
 
   // Observer to be updated on posts
   private postSub: Subscription = new Subscription();
@@ -36,6 +39,16 @@ export class PostListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.isLoading = true;
+
+    this.route.queryParamMap.subscribe((params: ParamMap) => { // to save pagination parameters
+          console.log("PostListComponent - ngOnInit: queryParamMap... ");
+          if (params.has('pageindex') && params.has('pageindex') ) {
+            this.pageIndex = parseInt(params.get('pageindex') || '1');
+            this.pageSize = parseInt(params.get('pagesize') || '5');
+            // console.log( { ...params.keys, ...params } ); // DEBUG
+          }
+    });
+
     this.postService.getPosts(this.pageSize, this.pageIndex); // trigger the HTTP request to retrieve JSON data from REST API (async call)
                                                               // two parameters used for pagination
 
@@ -45,7 +58,6 @@ export class PostListComponent implements OnInit, OnDestroy {
                                           this.postList = responseData.posts;
                                           this.postListMax = responseData.postsMax;
                                           console.log("PostListComponent - ngOnInit: size of posts=" + this.postList.length + " on a total of " + this.postListMax);
-                                          // this.onPaginationChange(); // obsoleted by pagination on backend side
                                           // setTimeout(() => { this.isLoading = false; } , 5000); // Mock latency of 5 sec
                                           this.isLoading = false;
                                       });
@@ -60,10 +72,12 @@ export class PostListComponent implements OnInit, OnDestroy {
                                                                 console.log("PostListComponent - ngOnInit: userId="+ this.userId +" , userIsAuthenticated="+this.userIsAuthenticated); });
   }; // ngOnInit
 
+
   ngOnDestroy(): void {
     this.postSub.unsubscribe();
     this.userStateSub.unsubscribe();
   } // ngOnDestroy
+
 
   onDelete(postID : string) : void {
     this.isLoading = true;
@@ -78,6 +92,7 @@ export class PostListComponent implements OnInit, OnDestroy {
      });
   } // onDelete
 
+
   onPageChange(event : PageEvent) {
     // console.log("PostListComponent - onPageChange (paginator)..."); // DEBUG
     this.isLoading = true;
@@ -86,9 +101,9 @@ export class PostListComponent implements OnInit, OnDestroy {
     this.postService.getPosts(this.pageSize, this.pageIndex); // re-trigger the HTTP request
   } // onPageChange
 
+
   stringToHTML(text : string) : any {
     return new DOMParser().parseFromString(text, "text/html").documentElement.textContent;
-  }
+  } // stringToHTML
 
 }
-

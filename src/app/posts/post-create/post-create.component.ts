@@ -3,8 +3,8 @@ import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, ParamMap } from "@angular/router";
 import { Subscription } from "rxjs";
 import { AuthService } from "src/app/auth/auth.service";
-import { Post } from "../post-list/post.model";
-import { PostsService } from "../post-list/posts.service";
+import { Post } from "../post.model";
+import { PostsService } from "../posts.service";
 import { mimeType } from "./mime-type.validator";
 
 @Component({
@@ -23,6 +23,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   postLabel = 'Enter your post:';
   isLoading : boolean = false;
   imagePreview : string = '';
+  currentPageSize = 0;
+  currentPageIndex = 0;
 
   postForm: FormGroup = new FormGroup({
     'postTitle' : new FormControl(null, { validators: [Validators.required, Validators.minLength(this.minLengthTitle)]} ),
@@ -30,8 +32,8 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     'postImage' : new FormControl(null, { asyncValidators: [mimeType] , validators: [Validators.nullValidator] })
   })
 
-    // Observer to be updated on user's status
-    private statusSub: Subscription = new Subscription();
+  // Observer to be updated on user's status
+  private statusSub: Subscription = new Subscription();
 
   constructor(public postService: PostsService,
               public route: ActivatedRoute,
@@ -51,6 +53,17 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     this.route.url.subscribe((url) => { this.mode = url[0].path }); // find the mode by analysing the route path
     this.route.paramMap.subscribe( (paramMap: ParamMap) =>
       {
+        // Save pagination parameters
+        this.route.queryParamMap.subscribe((params: ParamMap) => {
+          console.log("PostCreateComponent - ngOnInit: queryParamMap... ");
+          console.log(params);
+          if (params.has('pageindex') && params.has('pageindex') ) {
+            this.currentPageIndex = parseInt(params.get('pageindex') || '1');
+            this.currentPageSize = parseInt(params.get('pagesize') || '5');
+            // console.log("DEBUG: currentPageIndex=" + this.currentPageIndex);
+            // console.log("DEBUG: currentPageSize=" + this.currentPageSize);
+          }
+        });
         // Edit mode
         if (this.mode === 'edit' && paramMap.has('postId')) { // check if Id presents
           this.postLabel = 'Edit your post:';
@@ -108,6 +121,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     console.log("PostCreateComponent - ngOnInit: mode=" + this.mode);
   } // ngOnInit
 
+
   ngOnDestroy(): void {
     this.statusSub.unsubscribe();
   }
@@ -139,13 +153,13 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     this.isLoading = true;
 
     if (this.mode === 'create') {
-      // save a new post on create, and redirect
+      // save a new post on create, and redirect (i.e. creation)
       this.postService.addPost(this.postForm.value.postTitle,
                                this.postForm.value.postContent,
                                this.postForm.value.postImage);
 
     } else {
-      // save an existing post after edit, and redirect (i.e. update)
+      // save an existing post on update, and redirect (i.e. edition)
       this.postService.updatePost(this.pccPost.id,
                                   this.postForm.value.postTitle,
                                   this.postForm.value.postContent,
@@ -169,7 +183,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     // console.log(this.postForm); // DEBUG
     const reader = new FileReader();
     reader.onload = () => {
-        this.imagePreview = reader.result as string; // assign it once read
+       this.imagePreview = reader.result as string; // assign it once read
        // console.log(this.imagePreview);  // DEBUG
     };
     reader.readAsDataURL(file); // read the file
