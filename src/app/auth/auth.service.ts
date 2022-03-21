@@ -3,11 +3,13 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { Subject } from "rxjs";
+import { environment } from "src/environments/environment";
+
 
 @Injectable()
 export class AuthService {
 
-  private baseUrl: string = 'http://localhost:3000/api/user/';
+  private API_USER_URL: string = environment.baseApiURL + '/user/'; // e.g. ../user/login
   private authToken: string = '';
   private authTokenExpIn: number = 0;
   private authTokenTimer: any;
@@ -24,7 +26,7 @@ export class AuthService {
   createUser(email:string, password:string) {
     const authData : AuthData = { email: email, password: password };
 
-    this.httpClient.post(this.baseUrl + 'signup', authData)
+    this.httpClient.post(this.API_USER_URL + 'signup', authData) // e.g. ../user/signup
                    .subscribe(
                         (response) => {
                            console.log("AuthService: createUser response...");
@@ -42,7 +44,7 @@ export class AuthService {
   loginUser(email:string, password:string) {
     const authData : AuthData = { email: email, password: password };
 
-    this.httpClient.post<{ token: string, expiresIn: number, userId: string }>(this.baseUrl + 'login', authData) // see login API
+    this.httpClient.post<{ token: string, expiresIn: number, userId: string }>(this.API_USER_URL + '/login', authData) // login API
       .subscribe( (response) => {
             this.authToken = response.token;
             this.authTokenExpIn = response.expiresIn;

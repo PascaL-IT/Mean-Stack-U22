@@ -16,14 +16,13 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(req)
                .pipe( catchError( (httpError: HttpErrorResponse) => {
                          console.log("ErrorInterceptor: HTTP error catched...");
-                         console.log(httpError); // DEBUG
-                         // alert('Status: ' + httpError.status + ' , Message: ' + httpError.error.message );
+                         console.log(httpError);
 
                          const dialogConfig = new MatDialogConfig();
                          dialogConfig.disableClose = false;
                          dialogConfig.autoFocus = true;
                          if (httpError.status === 0) {
-                          dialogConfig.data = { status: '503' , error_message:  httpError.statusText }; // Service Unavailable
+                          dialogConfig.data = { status: '503' , error_message: 'Service unavailable' };
                          } else {
                           dialogConfig.data = { status: httpError.status , error_message: httpError.error.message };
                          }

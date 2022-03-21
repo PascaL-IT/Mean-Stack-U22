@@ -1,0 +1,14 @@
+{
+    "env" : {
+              "MONGO_ATLAS_DB_NAME" : "database1" ,
+              "MONGO_ATLAS_CLUSTER_URI" : "cluster1.m3eok.mongodb.net" ,
+              "MONGO_ATLAS_CREDENTIALS" : "Pascal:MongoDB" ,
+              "ACA_ORIGIN" : "*" ,
+              "ACA_HEADERS" : "Origin, X-Requested-With, Content-Type, Accept, Authorization" ,
+              "ACA_METHODS" : "GET, PUT, POST, DELETE" ,
+              "JWT_HS256_KEY" : "5F26F7B6E23236E725F51E8775F3A" ,
+              "JWT_ALGO" : "HS256" ,
+              "JWT_EXP_DURATION_SEC" : 3600 ,
+              "PORT" : 3000
+            }
+}

@@ -1,6 +1,6 @@
 
 <mat-toolbar color="primary">
-  <span><a routerLink="/">My Messages</a></span>
+  <span><a routerLink="/">List Of Posts</a></span>
 
   <span class="spacer"></span>
   <ul>
@@ -11,12 +11,12 @@
       </li>
       <li>
         <span>
-          <a mat-button routerLink="/login" routerLinkActive="mat-accent" [disabled]="userIsAuthenticated">Login</a>
+          <a mat-button routerLink="/auth/login" routerLinkActive="mat-accent" [disabled]="userIsAuthenticated">Login</a>
         </span>
       </li>
       <li>
         <span>
-          <a mat-button routerLink="/signup" routerLinkActive="mat-accent" [disabled]="userIsAuthenticated">Signup</a>
+          <a mat-button routerLink="/auth/signup" routerLinkActive="mat-accent" [disabled]="userIsAuthenticated">Signup</a>
         </span>
       </li>
       <li>

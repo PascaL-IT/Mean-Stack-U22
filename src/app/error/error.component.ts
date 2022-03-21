@@ -7,6 +7,7 @@ import { MAT_DIALOG_DATA } from "@angular/material/dialog";
 
 export class ErrorComponent {
 
+  // Dialog used to display an error message
   constructor(@Inject(MAT_DIALOG_DATA) public data: { status: string , error_message: string }) {};
 
 }

@@ -4,12 +4,13 @@ import { HttpClient } from "@angular/common/http";
 import { Subject } from "rxjs";
 import { map } from "rxjs/operators";
 import { Router } from "@angular/router";
+import { environment } from "src/environments/environment";
 
 
 @Injectable({providedIn: 'root'})
 export class PostsService {
 
-  private baseUrl: string = 'http://localhost:3000/api/posts/';
+  private API_POSTS_URL: string = environment.baseApiURL + '/posts/';
 
   private posts: Post[] = [];
   private postsUpdated = new Subject<{ posts: Post[], postsMax: number, pageSize: number, pageIndex: number }>(); // Subject (Active observable)
@@ -28,7 +29,7 @@ export class PostsService {
     const pageQueryParams : string = "?pagesize=" + pageSize + '&pageindex=' + pageIndex;
 
     this.httpClient
-              .get<{ message: string, posts: any, maxPosts: number }>(this.baseUrl + pageQueryParams)
+              .get<{ message: string, posts: any, maxPosts: number }>(this.API_POSTS_URL + pageQueryParams)
               .pipe( map( (jsonData) => { // transform by mapping _id to id
                       return {
                                message: jsonData.message ,
@@ -49,7 +50,7 @@ export class PostsService {
                   console.log("PostsService: getPosts >> message: " + jsonData.message + " (total/max. of posts="+jsonData.maxPosts+")");
                 } , (error) => {
                   console.log("PostsService: getPosts >> status: " + error.status + " , error: " + error.statusText);
-                  this.postsUpdated.next({ posts: [  { id: '', title:  error.statusText, content: error.status, imagePath: '', creatorId: '' } ], postsMax: 1, pageSize: 0, pageIndex: 0 }); // Subject .next() => notify
+                  this.postsUpdated.next({ posts: [  { id: '', title: 'Failed to get posts - technical error !', content: error.status, imagePath: '', creatorId: '' } ], postsMax: 1, pageSize: 0, pageIndex: 0 }); // Subject .next() => notify
                 });
   } // getPosts
 
@@ -72,7 +73,7 @@ export class PostsService {
       postData.append("image", postImage, postImage.name); // "image" as multer({storage: imageStorage}).single("image")
     }
 
-    this.httpClient.post<{message: string, post: Post}>(this.baseUrl, postData)
+    this.httpClient.post<{message: string, post: Post}>(this.API_POSTS_URL, postData)
                    .subscribe( (response) => { // observer
                       console.log("PostsService: addPost >> " + response.message);
                       let computedPageIndex = Math.trunc((this.currentPostsMax + 1) / this.currentPageSize);
@@ -90,7 +91,7 @@ export class PostsService {
 
   // This function delete an existing post on the backend database, by his ID
   deletePost(postId: string) {
-    return this.httpClient.delete<{message: string}>(this.baseUrl + postId); // TIP : return an Observable
+    return this.httpClient.delete<{message: string}>(this.API_POSTS_URL + postId); // TIP : return an Observable
   } // deletePost
 
 
@@ -108,7 +109,8 @@ export class PostsService {
   getPost(postId: string) {
     console.log("PostsService: getPost >> post id=" + postId);
     return this.httpClient.get<{ message: string ,
-                                 post: { _id: string, title: string, content: string, imagePath: string, creatorId: string } }>(this.baseUrl + postId);
+                                 post: { _id: string, title: string, content: string, imagePath: string, creatorId: string }
+                               }>(this.API_POSTS_URL + postId);
   } // getPost
 
 
@@ -126,7 +128,7 @@ export class PostsService {
         postData.append("image", postImage, postImage.name); // "image" as multer({storage: imageStorage}).single("image")
       }
 
-      this.httpClient.put<{ message: string }>(this.baseUrl + postId, postData)
+      this.httpClient.put<{ message: string }>(this.API_POSTS_URL + postId, postData)
                      .subscribe( (response) => { // observer
                           console.log("PostsService: updatePost >> response=" + response.message);
                           this.router.navigate(["/"], { queryParams: { pagesize: this.currentPageSize ,

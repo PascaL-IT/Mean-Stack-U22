@@ -25,7 +25,7 @@ export class PostListComponent implements OnInit, OnDestroy {
   pageList: Post[] = []; // array of Posts used for memory pagination
   pageIndex = 0; // default
   pageSize = 5; // default
-  pageSizeOptions = [1,2,3,4,5,10]; // 20,50,100
+  pageSizeOptions = [1,2,3,4,5,10,20]; // 20,50,100
 
   // Constructor used to inject services (DI = dependency injection)
   constructor(public postService: PostsService,
@@ -45,7 +45,7 @@ export class PostListComponent implements OnInit, OnDestroy {
           if (params.has('pageindex') && params.has('pageindex') ) {
             this.pageIndex = parseInt(params.get('pageindex') || '1');
             this.pageSize = parseInt(params.get('pagesize') || '5');
-            // console.log( { ...params.keys, ...params } ); // DEBUG
+            // console.log(params); // DEBUG
           }
     });
 

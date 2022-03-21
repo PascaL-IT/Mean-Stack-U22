@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 module.exports=(req, res, next) => {
 
-  const JWT_SECRET_KEY = '5F26F7B6E23236E725F51E8775F3A'; // duplicated code -> TODO : improving  by using a .env file
+  const JWT_SECRET_KEY = process.env.JWT_HS256_KEY;
 
   try {
     // console.log(JSON.stringify(req.headers)); // DEBUG

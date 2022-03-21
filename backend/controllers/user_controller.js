@@ -1,7 +1,7 @@
 const UserModel = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const jwtExpDuration = 3600; // Expiration duration (in seconds)
+const jwtExpDuration = process.env.JWT_EXP_DURATION_SEC; // Expiration duration (in seconds)
 
 // Controller function for user creation
 exports.userCreate = (req, res, next) => {
@@ -58,10 +58,10 @@ exports.userLogin = (req, res, next) => {
                                   .json({ message: "Authentication failed !" , result: 'compare is ' + result });
                       }
                       // As user's credentials are OK, we generate a token
-                      const JWT_SECRET_KEY = '5F26F7B6E23236E725F51E8775F3A';  // https://randomkeygen.com/
+                      const JWT_SECRET_KEY = process.env.JWT_HS256_KEY;
                       const jwtoken = jwt.sign( { email: user.email , id: user._id } ,
                                                   JWT_SECRET_KEY ,
-                                                { expiresIn: jwtExpDuration + "s" , algorithm: 'HS256' } ); // s for 'in seconds' , hash & secret
+                                                { expiresIn: jwtExpDuration + "s" , algorithm: process.env.JWT_ALGO } ); // s for 'in seconds' , hash & secret
                       return res.status(200) // OK and provide a token
                                 .json({ token: jwtoken , expiresIn: jwtExpDuration, userId: user._id }); // return the JWT
                                                                                                          // along with the expiresIn value (seconds)

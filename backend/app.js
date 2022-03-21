@@ -7,10 +7,10 @@ const postRoutes = require('./routes/posts');
 const userRoutes = require('./routes/user');
 
 
-const dbName = 'database1';
-const clusterUri = 'cluster1.m3eok.mongodb.net';
-const credentials = 'Pascal:MongoDB';
-mongoose.connect("mongodb+srv://" + credentials + "@" + clusterUri + "/" + dbName +"?retryWrites=true&w=majority")
+const dbName = process.env.MONGO_ATLAS_DB_NAME;
+const clusterUri = process.env.MONGO_ATLAS_CLUSTER_URI;
+
+mongoose.connect("mongodb+srv://" + process.env.MONGO_ATLAS_CREDENTIALS + "@" + clusterUri + "/" + dbName +"?retryWrites=true&w=majority")
     .then(() => { console.log("Connected to MongoDB ("+clusterUri+" , "+dbName+")") })
     .catch(() => { console.log("Failed to connect to MongoDB ("+clusterUri+" , "+dbName+")") })
 
@@ -20,9 +20,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : false}));
 app.use((req, res, next) => {
   // Set headers to avoid CORS errors (Cross-Origin Resource Sharing)
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization" );
-  res.setHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, PATCH");
+  res.setHeader("Access-Control-Allow-Origin", process.env.ACA_ORIGIN);
+  res.setHeader("Access-Control-Allow-Headers", process.env.ACA_HEADERS);
+  res.setHeader("Access-Control-Allow-Methods", process.env.ACA_METHODS);
   next();
 });
 

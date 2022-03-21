@@ -56,7 +56,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
         // Save pagination parameters
         this.route.queryParamMap.subscribe((params: ParamMap) => {
           console.log("PostCreateComponent - ngOnInit: queryParamMap... ");
-          console.log(params);
+          // console.log(params); // DEBUG
           if (params.has('pageindex') && params.has('pageindex') ) {
             this.currentPageIndex = parseInt(params.get('pageindex') || '1');
             this.currentPageSize = parseInt(params.get('pagesize') || '5');
