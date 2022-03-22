@@ -9,7 +9,7 @@ const routes: Routes = [
   { path: 'create', component: PostCreateComponent, canActivate: [AuthGuard] } ,
   { path: 'edit/:postId', component: PostCreateComponent, canActivate: [AuthGuard] } ,
   { path: 'auth', loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule) } , // lazy loading
-  { path: '**', redirectTo: 'login' } // http 404, not found (301)
+  { path: '**', redirectTo: '' } // http 404, not found (301)
 ];
 
 @NgModule({
