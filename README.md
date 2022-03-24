@@ -1,28 +1,28 @@
-# UdemyMeanCourse - Mean-UEd22 -  MEAN Stack Udemy Course
+# MEAN Stack Course - Angular & Node.js
 
-Building a "Posts blog" application with Angular for the frontend, and with Node.js, Express.js, MongoDB in the backend.
+Guide to build a real "Posts blog" application with Angular for the frontend, and with Node.js, Express.js, MongoDB in the backend.
 
-![image](https://user-images.githubusercontent.com/36189996/143689312-01084d49-acc2-4bbd-b9d6-d5930f170b98.png)
+![image](https://user-images.githubusercontent.com/36189996/159879105-51ce091f-6a14-4e95-8384-d08ed930ec21.png)
 
 
-Ref. https://www.udemy.com/course/angular-2-and-nodejs-the-practical-guide/ by Maximilian Schwarzmüller
-
-- Learn how to connect your Angular Frontend to a NodeJS, Express and MongoDB Backend by building a real application
-- Create modern, scalable and high-speed Web Applications
-- Benefit from Angular offers : speed, ease of development, highly reactive, awesome support for asynchronous operations, great scalability...
-- Hands-on approach, structured around one big application, the main different concepts will be explained :
+- Learn how to connect your Angular Frontend to a NodeJS, Express and MongoDB backend 
+- Create a modern, scalable and reactive Web application ()
+- Benefit from Angular offers : speed, ease of development, asynchronous operations, great scalability...
+- Hands-on approach, structured around this real application, the main concepts are explained and covered :
   - Set up a NodeJS + Express + MongoDB + Angular application with the help of the Angular CLI
   - Use NodeJS and Express efficiently
   - Build reusable Components in Angular and create a reactive User Experience with the Tools provided by Angular
-  - Connect your NodeJS (or any other language!) backend with your Angular App through Angular’s HttpClient service
-  - Provide appropriate endpoints on your Backend, for your Frontend to consume
-  - Add advanced features like file upload and pagination
-  - Make your Application more secure by implementing Users, Authentication as well as Authorization
-  - Handle Errors gracefully 
-  - Able to incorporate many different Routes, Observables, Events, Authentication and Authorization, Error Handling ...
+  - Connect your NodeJS backend with your Angular app through Angular’s HttpClient service
+  - Provide appropriate endpoints on your backend (REST api), for your Frontend to consume
+  - Add advanced features like pagination and file upload (image)
+  - Make the pplication secure by implementing Users, Authentication as well as Authorization (JWT)
+  - Handle errors gracefully (error Handling)
+  - Incorporate many different Routes, Observables, Events, Authentication and Authorization, Auth guard ...
+
+Ref. https://www.udemy.com/course/angular-2-and-nodejs-the-practical-guide/ by Maximilian Schwarzmüller
 
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.9.
+This project is generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.9.
 
 ## Development server
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
