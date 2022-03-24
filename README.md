@@ -1,4 +1,10 @@
-# UdemyMeanCourse 
+# UdemyMeanCourse - Mean-UEd22 -  MEAN Stack Udemy Course
+
+Building a "Posts blog" application with Angular for the frontend, and with Node.js, Express.js, MongoDB in the backend.
+
+![image](https://user-images.githubusercontent.com/36189996/143689312-01084d49-acc2-4bbd-b9d6-d5930f170b98.png)
+
+
 Ref. https://www.udemy.com/course/angular-2-and-nodejs-the-practical-guide/ by Maximilian Schwarzmüller
 
 - Learn how to connect your Angular Frontend to a NodeJS, Express and MongoDB Backend by building a real application
