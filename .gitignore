@@ -48,6 +48,5 @@ Thumbs.db
 .angular/*
 backend/images/*
 
-# App environment files (with credentials, ...)
-.env
+# App environment files
 nodemon.json
