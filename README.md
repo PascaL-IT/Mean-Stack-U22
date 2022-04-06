@@ -1,51 +1,63 @@
-# MEAN Stack Course - Angular & Node.js
+# MEAN Stack Course
 
-Guide to build a real "Posts blog" application with Angular for the frontend, and with Node.js, Express.js, MongoDB in the backend.
+Guide to build a real "Posts blog" like application with **Angular** for the frontend, 
+                                               with **Node.js, Express.js, Mongoose** for the backend,
+                                               with **MongoDB Atlas** for the database in the cloud.
 
 ![image](https://user-images.githubusercontent.com/36189996/159879105-51ce091f-6a14-4e95-8384-d08ed930ec21.png)
 
 
-- Learn how to connect your Angular Frontend to a NodeJS, Express and MongoDB backend 
-- Create a modern, scalable and reactive Web application ()
-- Benefit from Angular offers : speed, ease of development, asynchronous operations, great scalability...
-- Hands-on approach, structured around this real application, the main concepts are explained and covered :
-  - Set up a NodeJS + Express + MongoDB + Angular application with the help of the Angular CLI
-  - Use NodeJS and Express efficiently
-  - Build reusable Components in Angular and create a reactive User Experience with the Tools provided by Angular
-  - Connect your NodeJS backend with your Angular app through Angular’s HttpClient service
-  - Provide appropriate endpoints on your backend (REST api), for your Frontend to consume
-  - Add advanced features like pagination and file upload (image)
-  - Make the pplication secure by implementing Users, Authentication as well as Authorization (JWT)
-  - Handle errors gracefully (error Handling)
-  - Incorporate many different Routes, Observables, Events, Authentication and Authorization, Auth guard ...
-
-Ref. https://www.udemy.com/course/angular-2-and-nodejs-the-practical-guide/ by Maximilian Schwarzmüller
+- Create a modern and reactive Web app with **Angular** that offers speed, ease of development, asynchronous operations and scalability
+- Learn how to connect the SPA (Single Page Application) frontend to a **NodeJS with Express, RxJS and MongoDB** in the backend 
+- Hands-on approach, structured around a real application, the main concepts are explained and covered :
+  - Set up a NodeJS + Express + MongoDB + Angular application with the help of [Angular CLI](https://github.com/angular/angular-cli)
+  - Build reusable Components, Modules in Angular and create a better User Experience (UX) with [Angular Material](https://material.angular.io/)
+  - Connect Angular app through HttpClient service to a secure REST API in NodeJS server (endpoints)
+  - Add advanced features like pagination, filters (text search, user's posts) and file upload (image)
+  - Make the pplication secure by implementing user signup, login, authentication and authorization with JWT
+  - Incorporate many different Routes, Observables, Events, Auth Guard, ... Errors Handling.
 
 
-This project is generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.9.
+<br>
 
-## Development server
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-
-## Code scaffolding
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+![image](https://user-images.githubusercontent.com/36189996/162067122-130f4f29-7dd6-4c3a-8fcb-72c03a52b8d6.png)
 
 
-![image](https://user-images.githubusercontent.com/36189996/161967335-fa7f5170-5934-482b-bf52-6bdb55891f44.png)
+<br>
 
-## MEAN application built and deployed on AWS S3 & Heroku 
+![image](https://user-images.githubusercontent.com/36189996/162067187-554b9918-a77d-4e89-a72a-c51464d104a8.png)
 
-http://posts-blog-ui-pl1.s3-website.eu-central-1.amazonaws.com/
+<br>
+
+## Post Blog application deployed on AWS S3, Heroku and MongoDB Atlas 
+- Frontent (Angular UI) deployed in a bucket on [AWS S3](https://aws.amazon.com/s3/?nc1=h_ls)
+- Backend (NodeJs) deployed on [Heroku PaaS](https://www.heroku.com/platform) (alternative to AWS Elastic Beanstalk)
+- Database (MongoDB) deployed on [MongoDB Atlas]'https://www.mongodb.com/atlas/database)
+
+![image](https://user-images.githubusercontent.com/36189996/162066956-1fd34251-c13b-4e1b-82bd-8f950583e619.png)
+
+![image](https://user-images.githubusercontent.com/36189996/162067036-0e67d0f9-cedc-42cd-9410-c3095a965928.png)
+
+<br>
+
+Link to ![image](https://user-images.githubusercontent.com/36189996/162063732-a2ae2a2c-f249-4ce7-91ba-3d68f30d8588.png)
+ : http://posts-blog-ui-pl1.s3-website.eu-central-1.amazonaws.com/
+
+![image](https://user-images.githubusercontent.com/36189996/162066381-ea446c89-63c9-4056-b9fe-d08812bf33a9.png)
+
+<br>
+
+## Angular and NodeJs packages
+This project is generated with Angular CLI version 13+ , express 4+ , mongoose 6+ , mongoose-unique-validator 3+ , multer 1.4+ 
+and other dependencies like rxjs 6+ , typescript 4.5+bcrypt 5+ , body-parser 1.19+ ,  jsonwebtoken 8+ , nodemon 2+ , ...
+
+<br>
+
+## Certificate
+![image](https://user-images.githubusercontent.com/36189996/162062727-f52426df-efc0-488b-82f5-0a2e97cedb93.png)
+![image](https://user-images.githubusercontent.com/36189996/162067318-4210afbc-157d-4669-9aef-50201bddced6.png)
+
+Ref. https://www.udemy.com/course/angular-2-and-nodejs-the-practical-guide/ 
+
+
 
