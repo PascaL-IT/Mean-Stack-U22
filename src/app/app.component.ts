@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Title } from "@angular/platform-browser";
 import { AuthService } from './auth/auth.service';
+import { environment } from "src/environments/environment";
 
 @Component({
   selector: 'app-root',
@@ -10,9 +11,15 @@ import { AuthService } from './auth/auth.service';
 
 export class AppComponent {
 
-  title = 'udemy-mean-course';
+  title = environment.appTitle;
 
-  constructor(private titleService: Title, private authService: AuthService) {}
+  constructor(private titleService: Title, private authService: AuthService) {
+    if (environment.production) {
+      console.log("Production environment (" + environment.production + ")"); // Logs false for default environment
+    } else {
+      console.log("None production environment (" + environment.production + ")"); // Logs false for default environment
+    }
+  }
 
   ngOnInit() {
     this.titleService.setTitle(this.title);

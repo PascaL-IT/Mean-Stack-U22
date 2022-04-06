@@ -5,6 +5,7 @@ import { Subject } from "rxjs";
 import { map } from "rxjs/operators";
 import { Router } from "@angular/router";
 import { environment } from "src/environments/environment";
+import { PostFilters } from "./post-list/post-list.filter.model";
 
 
 @Injectable({providedIn: 'root'})
@@ -14,7 +15,7 @@ export class PostsService {
 
   private posts: Post[] = [];
   private postsUpdated = new Subject<{ posts: Post[], postsMax: number, pageSize: number, pageIndex: number }>(); // Subject (Active observable)
-  private currentPageSize = 0;
+  private currentPageSize = 5;
   private currentPageIndex = 0;
   private currentPostsMax = 0;
 
@@ -25,11 +26,13 @@ export class PostsService {
   }
 
   // This function retrieves the posts from the backend database as per the pagination params
-  getPosts(pageSize: number, pageIndex: number) {
-    const pageQueryParams : string = "?pagesize=" + pageSize + '&pageindex=' + pageIndex;
+  getPosts(pageSize: number, pageIndex: number, filters: PostFilters) {
+
+    const QUERY_PARAMS = "?pagesize=" + pageSize + '&pageindex=' + pageIndex + '&textsearch=' + filters.text;
+    const QUERY_PATH = filters.userid ? ("/user/" + filters.userid) : "";
 
     this.httpClient
-              .get<{ message: string, posts: any, maxPosts: number }>(this.API_POSTS_URL + pageQueryParams)
+              .get<{ message: string, posts: any, maxPosts: number }>(this.API_POSTS_URL + QUERY_PATH + QUERY_PARAMS)
               .pipe( map( (jsonData) => { // transform by mapping _id to id
                       return {
                                message: jsonData.message ,
@@ -41,16 +44,21 @@ export class PostsService {
                                            imagePath: post.imagePath,
                                            creatorId: post.creatorId  };
                                } ) } } ) )
-              .subscribe( (jsonData) => { // observer
+              .subscribe(
+                    (jsonData) => { // observer
                   this.posts = jsonData.posts; // subset of list of posts
                   this.currentPageSize = pageSize;
                   this.currentPageIndex = pageIndex;
                   this.currentPostsMax = jsonData.maxPosts;
                   this.postsUpdated.next({ posts: [...this.posts], postsMax: jsonData.maxPosts, pageSize: pageSize, pageIndex: pageIndex }); // Subject .next() => notify
                   console.log("PostsService: getPosts >> message: " + jsonData.message + " (total/max. of posts="+jsonData.maxPosts+")");
-                } , (error) => {
-                  console.log("PostsService: getPosts >> status: " + error.status + " , error: " + error.statusText);
-                  this.postsUpdated.next({ posts: [  { id: '', title: 'Failed to get posts - technical error !', content: error.status, imagePath: '', creatorId: '' } ], postsMax: 1, pageSize: 0, pageIndex: 0 }); // Subject .next() => notify
+                } , (errorMessage) => {
+                  console.log("PostsService: getPosts >> status: " + errorMessage.status + " , error: " + errorMessage.statusText);
+                  if (errorMessage.status === undefined) {
+                    this.postsUpdated.next({ posts: [  { id: '', title: 'No result found ...', content: '', imagePath: '', creatorId: '' } ], postsMax: 1, pageSize: 0, pageIndex: 0 }); // Subject .next() => notify
+                  } else {
+                    this.postsUpdated.next({ posts: [  { id: '', title: 'Failed to get posts - technical error !', content: errorMessage.status, imagePath: '', creatorId: '' } ], postsMax: 1, pageSize: 0, pageIndex: 0 }); // Subject .next() => notify
+                  }
                 });
   } // getPosts
 

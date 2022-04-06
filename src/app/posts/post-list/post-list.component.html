@@ -1,6 +1,25 @@
 <mat-spinner *ngIf="isLoading" mode="indeterminate" color="accent"></mat-spinner>
-<mat-accordion multi="true" *ngIf="postList.length > 0 && !isLoading">
-  <mat-expansion-panel *ngFor="let post of postList">
+<mat-accordion #accordion="matAccordion" multi="true" *ngIf="postList.length > 0 && !isLoading" >
+  <mat-panel-title>
+    <mat-button-toggle-group id="gr1" #gr="matButtonToggleGroup" appearance="legacy" name="filters" multiple>
+      <mat-button-toggle id="textfilter" #ft [checked]="isTextFiltered" name="filterText" (change)="onTextFilter(ft, tf, false)">
+        Text<mat-icon>filter_list</mat-icon>
+        <input class="input_tf" #tf matInput placeholder="..." type="text" [value]="inputTextSearch" (keyup.enter)="onTextFilter(ft, tf, true)" />
+      </mat-button-toggle>
+      <mat-button-toggle id="userfilter" #fp [checked]="isUserFiltered" name="filterPerson" *ngIf="userIsAuthenticated" (change)="onPersonFilter(fp)">
+        User<mat-icon>person_pin</mat-icon>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+    <mat-button-toggle-group id="gr2" #gr="matButtonToggleGroup" appearance="legacy" name="expandcollapse">
+      <mat-button-toggle id="expand" [checked]="isPostsExpand" (click)="accordion.openAll()" *ngIf="! isPageSizeOne()">
+        Expand<mat-icon>expand_less</mat-icon>
+      </mat-button-toggle>
+      <mat-button-toggle id="collapse" [checked]="!isPostsExpand" (click)="accordion.closeAll()" *ngIf="! isPageSizeOne()">
+        Collapse<mat-icon>expand_more</mat-icon>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </mat-panel-title>
+  <mat-expansion-panel *ngFor="let post of postList" [expanded]="isPageSizeOne()">
     <mat-expansion-panel-header>{{ post['title'] }}</mat-expansion-panel-header>
     <div class="image-preview" *ngIf="post.imagePath">
       <img [src]="post.imagePath" alt="post.title"
@@ -15,7 +34,7 @@
   </mat-expansion-panel>
 </mat-accordion>
 <br/>
-<p class="mat-body-2" *ngIf="postList.length == 0 && !isLoading">No post added yet...</p>
+<p class="mat-body-2" *ngIf="postList.length == 0 && isLoading">No post found yet...</p>
 <mat-paginator [length]="postListMax"
                [pageSize]="pageSize" [pageIndex]="pageIndex"
                [pageSizeOptions]="pageSizeOptions"

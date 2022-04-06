@@ -1,26 +1,34 @@
 const PostModel = require('../models/post');
 
 
-// Controller function used to retrieve a list of posts based pagination filters
+// Controller function used to retrieve a list of posts based on pagination filters
 exports.listOfPaginatedPosts = (req, res, next) => {
-  console.log('Server handles GET request to fetch all posts data ...');
-  const postModel = PostModel.find(); // to find all Mongoose's PostModel documents
   const pageSize = +req.query.pagesize; // pagesize=1,2,3,4,5,10,20...
   const pageIndex = +req.query.pageindex; // pageindex=0,1,2...
+  const textSearch = req.query.textsearch // to search on a pattern
+  console.log('Server handles GET request to fetch all posts data ...');
 
-  let postDocuments;
-  console.log('Pagination: pageSize=' + pageSize + ' , pageIndex=' + pageIndex); // DEBUG
+  let query = {};
+  if (textSearch) {
+    let regEx = { $regex: textSearch , $options: '-i' };
+    console.log("Filtering on posts having text='"+textSearch+"' in title, content or imagePath");
+    query = { $or: [ { title: regEx }, { imagePath: regEx } , { content: regEx } ]};
+    // console.log(query); // DEBUG
+  }
+  const postModel = PostModel.find(query);
 
   // On pagination, we skip and limit
   if (pageSize >= 1 && pageIndex >= 0) {
     postModel.skip(pageSize * pageIndex).limit(pageSize);
-    console.log('Pagination: skip=' + (pageSize * pageIndex) + ' , limit=' + pageSize); // DEBUG
+    console.log('Pagination: skip=' + (pageSize * pageIndex) + ' , limit=' + pageSize); // INFO
   }
   // Then count the documents
+  let postDocuments;
+
   postModel.then(
     (documents) => {
       postDocuments = documents; // keep a reference of posts
-      return PostModel.count(); // counting nbr. of documents
+      return PostModel.countDocuments(query); // counting total nbr. of documents based on the query (TIP)
   })
   // Then return the reponse
   .then((postsCounter) => {
@@ -33,14 +41,14 @@ exports.listOfPaginatedPosts = (req, res, next) => {
 
              } else {
               console.log('Backend - size of posts=0 => no document found.');
-              return res.status(404).json( { message: 'Empty list (no post found)' ,
+              return res.status(204).json( { message: 'Empty list (no post found)' ,
                                              posts: null } );
              }
    }).catch( (error) => {
     console.log('List of posts not retrieved from MongoDB (server error)');
     return res.status(500).json({ message: 'Failed to retrieve list of posts', posts: null });
   });
-} // router.get
+} // router.get - listOfPaginatedPosts
 
 
 // Controller function used to store a new post
@@ -79,7 +87,8 @@ exports.addNewPost = (req, res, next) => {
                   console.log('Post ' + savePostResult._id +' not saved into MongoDB, by ' + userID + ' (server error)');
                   return res.status(500).json({ message: 'Failed to save new post !', post: null });
                 });
-} // router.post
+
+} // router.post - addNewPost
 
 
 // Controller function used to delete an existing post
@@ -102,7 +111,8 @@ exports.deletePost = (req, res, next) => {
                console.log('Post ' + postID + ' not deleted on MongoDB, by ' + userID + ' (server error)');
                return res.status(500).json({ message: 'Failed to delete post ' + postID + ' !'});
              });
-} // router.post
+
+} // router.post - deletePost
 
 
 // Controller function to update an existing post
@@ -110,9 +120,9 @@ exports.updatePost = (req, res, next) => {
   const postID = req.params.id;
   const userID = req.userData.userid;
   console.log('Server handles PUT request to update post id='+ postID + ', by ' + userID);
-  // console.log(req.file); // DEBUG
 
   let imagePath;
+  // console.log(req.file); // DEBUG
   if (req.file) {
     imagePath = req.protocol + '://' + req.get("host") + "/images/" + req.file.filename // build url from image file
   } else {
@@ -155,7 +165,8 @@ exports.updatePost = (req, res, next) => {
                          }
                        );
           });
-} // router.put
+
+} // router.put - updatePost
 
 
 // Controller function to get an existing post
@@ -173,12 +184,65 @@ exports.onePost = (req, res, next) => {
                           .json( { message: 'Found a post with id=' + postID,
                                    post: post } );
              } else {
-                return res.status(404)
+                return res.status(204)
                           .json({ message: 'No post found with id=' + postID,
                                   post: null });
              } }).catch( (error) => {
                console.log('Post ' + postID + ' is not found on MongoDB (server error)');
                return res.status(500).json({ message: 'No post found with id=' + postID, post: null });
              });
-} // router.get
 
+} // router.get - onePost
+
+
+
+// Controller function used to retrieve the list of posts based on user id and pagination filters
+exports.listOfUserPaginatedPosts = (req, res, next) => {
+  const pageSize = +req.query.pagesize; // pagesize=1,2,3,4,5,10,20...
+  const pageIndex = +req.query.pageindex; // pageindex=0,1,2...
+  const textSearch = req.query.textsearch; // to search on a pattern
+  const userID = req.params.id;
+  console.log('Server handles GET request to retrieve the posts of user id='+ userID);
+
+  let query = { creatorId: userID };
+  if (textSearch) {
+    let regEx = { $regex: textSearch , $options: '-i' };
+    console.log("Filtering on posts having text='"+textSearch+"' in creatorid, title, content or imagePath");
+    query = { $and:[ query , { $or: [ { title: regEx }, { imagePath: regEx } , { content: regEx } ]} ]};
+    // console.log(query); // DEBUG
+  }
+  const postModel = PostModel.find(query); // to find User's PostModel documents
+
+  // On pagination, we skip and limit
+  if (pageSize >= 1 && pageIndex >= 0) {
+    postModel.skip(pageSize * pageIndex).limit(pageSize);
+    console.log('Pagination: skip=' + (pageSize * pageIndex) + ' , limit=' + pageSize); // INFO
+  }
+
+  // Then count the documents
+  let postDocuments;
+  postModel.then(
+    (documents) => {
+      postDocuments = documents; // keep a reference of posts
+      return PostModel.countDocuments(query); // counting nbr. of filtered documents
+  })
+  // Then return the reponse
+  .then((postsUserCounter) => {
+             if (postDocuments && postsUserCounter > 0) {
+              console.log('Backend - size of posts=' + postDocuments.length + ' on a total of ' + postsUserCounter + ' (as Page size=' + pageSize + ' and index=' + pageIndex + ')');
+              return res.status(200)
+                        .json( { message: 'List of ' + postDocuments.length + ' posts successfully fetched for posting with pagination' ,
+                                 posts: postDocuments,
+                                 maxPosts: postsUserCounter } );
+
+             } else {
+              console.log('Backend - size of posts=0 => no document found.');
+              return res.status(204).json( { message: 'Empty list (no post found)' ,
+                                             posts: null } );
+             }
+   }).catch( (error) => {
+    console.log('List of posts not retrieved from MongoDB (server error)');
+    return res.status(500).json({ message: 'Failed to retrieve list of posts', posts: null });
+  });
+
+} // router.get - listOfUserPaginatedPosts

@@ -4,7 +4,9 @@
 
 export const environment = {
   production: false,
-  baseApiURL: "http://localhost:3000/api"
+  appTitle: "posts-blog-dev" ,
+  baseApiURL: "http://localhost:3000/api",
+  appMainTitle: 'Posts blog'
 };
 
 /*

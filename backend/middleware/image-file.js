@@ -15,8 +15,10 @@ const imageStorage = multer.diskStorage({
     if (! isValidExt) {
       error = new Error("Unsupported File (invalid MimeType)");
     }
-    cb(error, "backend/images");
-},
+    // cb(error, path.join(__dirname, '../images'));
+    const imagesDir = 'images';
+    cb(error, imagesDir);
+  },
   filename: (req, file, cb) => {
     // replace spaces by _ and remove the file extension if any
     const filename = file.originalname.toLowerCase().split(' ').join('_').replace(/\.[^.$]+$/, '');
@@ -24,7 +26,7 @@ const imageStorage = multer.diskStorage({
     const uniqueFilename = filename + '_' + Date.now() + '.' + fileext;
     cb(null, uniqueFilename);
     // console.log("imageStorage: uniqueFilename="+uniqueFilename); // DEBUG
-}
+  }
 });
 
 

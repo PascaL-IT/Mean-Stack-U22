@@ -4,11 +4,12 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "start.prod": "ng serve --configuration production",
+    "build": "ng build --output-path dist/posts-blog-dev-umc --base-href . --configuration development",
+    "build.prod": "ng build --output-path dist/posts-blog-umc --base-href . --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "start.server": "nodemon server.js",
-    "nodejs": "node server.js"
+    "start.server": "nodemon ./backend/server.js"
   },
   "private": true,
   "dependencies": {

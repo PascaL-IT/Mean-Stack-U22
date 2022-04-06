@@ -1,9 +1,11 @@
+# Front-end Angular and Backend NodeJs ignore files (GitHub)
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
 /dist
 /tmp
 /out-tsc
+
 # Only exists if Bazel was run
 /bazel-out
 
@@ -45,4 +47,7 @@ testem.log
 Thumbs.db
 .angular/*
 backend/images/*
+
+# App environment files (with credentials, ...)
 .env
+nodemon.json

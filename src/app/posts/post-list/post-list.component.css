@@ -15,10 +15,82 @@ mat-spinner {
 
 .image-preview img {
   /* max-height: 10rem; */
-  width: 60%;
+  width: 50%;
   box-shadow: 5px 5px 5px rgba( 0, 0 , 0, 0.5);
 }
 
 mat-paginator {
   margin: 1rem;
 }
+
+mat-panel-title {
+  font-size: small;
+  padding: 0px;
+  margin: 1px;
+}
+
+
+mat-button-toggle-group {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+#gr1 {
+  background-color: rgb(255,255,255,1);
+}
+
+#gr2 {
+  background-color: rgb(209, 237, 245);
+  max-width: 205px;
+  min-width: 205px;
+}
+
+mat-button-toggle {
+  padding: 0;
+  margin: 0;
+  min-width: 40px;
+  border-radius: 0.5px;
+  font-size: 14px;
+  outline: auto;
+}
+
+mat-icon {
+  top: 5px;
+  max-width: 10px;
+  margin: 0 8px 0 -1px;
+}
+
+#textfilter {
+  min-width: 150px;
+}
+
+#textfilter .mat-icon {
+  min-width: 12px;
+  margin: 0 18px 0 2px;
+}
+
+.input_tf {
+  background-color: rgb(209, 237, 245);
+  text-align: left;
+  padding: 0 1px 0 1px;
+  margin: 1px 1px 1px 1px;
+  max-width: 100px;
+  min-width: 50px;
+}
+
+#userfilter {
+  max-width: 80px;
+  min-width: 80px;
+}
+
+#expand {
+  max-width: 95px;
+  min-width: 95px;
+}
+
+#collapse {
+  max-width: 110px;
+  min-width: 110px;
+}
+

@@ -1,7 +1,7 @@
 const UserModel = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const jwtExpDuration = process.env.JWT_EXP_DURATION_SEC; // Expiration duration (in seconds)
+
 
 // Controller function for user creation
 exports.userCreate = (req, res, next) => {
@@ -45,6 +45,9 @@ exports.userCreate = (req, res, next) => {
 // Controller function for user login
 exports.userLogin = (req, res, next) => {
 
+  const jwtExpDuration = process.env.JWT_EXP_DURATION_SEC; // Expiration duration in seconds
+  const jwtExpDurationSec = jwtExpDuration + "s"; // Expiration duration, string in seconds)
+
   UserModel.findOne({ email: req.body.email })
            .then( user => {
               if (! user) {
@@ -61,13 +64,15 @@ exports.userLogin = (req, res, next) => {
                       const JWT_SECRET_KEY = process.env.JWT_HS256_KEY;
                       const jwtoken = jwt.sign( { email: user.email , id: user._id } ,
                                                   JWT_SECRET_KEY ,
-                                                { expiresIn: jwtExpDuration + "s" , algorithm: process.env.JWT_ALGO } ); // s for 'in seconds' , hash & secret
+                                                { expiresIn: jwtExpDurationSec, algorithm: process.env.JWT_ALGO } ); // s for 'in seconds' , hash & secret
                       return res.status(200) // OK and provide a token
                                 .json({ token: jwtoken , expiresIn: jwtExpDuration, userId: user._id }); // return the JWT
                                                                                                          // along with the expiresIn value (seconds)
                                                                                                          // and the userId
                     })
                     .catch( error => {
+                      console.error("Backend - bcrypt.compare failed !");
+                        console.error(error);
                         return res.status(500) // Internal Server Error
                                   .json({ message: "Authentication error !" , error: error });
                     })

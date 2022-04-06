@@ -1,0 +1,4 @@
+# Backend ignore files (Heroku Git & CLI)
+.env
+images/*
+node_modules/dotenv/*

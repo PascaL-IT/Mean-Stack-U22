@@ -23,7 +23,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   postLabel = 'Enter your post:';
   isLoading : boolean = false;
   imagePreview : string = '';
-  currentPageSize = 0;
+  currentPageSize = 5;
   currentPageIndex = 0;
 
   postForm: FormGroup = new FormGroup({
@@ -54,11 +54,11 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     this.route.paramMap.subscribe( (paramMap: ParamMap) =>
       {
         // Save pagination parameters
-        this.route.queryParamMap.subscribe((params: ParamMap) => {
+        this.route.queryParamMap.subscribe((params: ParamMap) => { // to save pagination parameters
           console.log("PostCreateComponent - ngOnInit: queryParamMap... ");
           // console.log(params); // DEBUG
           if (params.has('pageindex') && params.has('pageindex') ) {
-            this.currentPageIndex = parseInt(params.get('pageindex') || '1');
+            this.currentPageIndex = parseInt(params.get('pageindex') || '0');
             this.currentPageSize = parseInt(params.get('pagesize') || '5');
             // console.log("DEBUG: currentPageIndex=" + this.currentPageIndex);
             // console.log("DEBUG: currentPageSize=" + this.currentPageSize);

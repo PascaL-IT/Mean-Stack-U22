@@ -1,12 +1,14 @@
 
 <mat-toolbar color="primary">
-  <span><a routerLink="/">List Of Posts</a></span>
+  <span><a routerLink="/" (click)="doRefresh()">{{ appMainTitle }}</a></span>
 
   <span class="spacer"></span>
   <ul>
       <li>
         <span>
-          <a mat-button routerLink="/create" routerLinkActive="mat-accent" [disabled]="!userIsAuthenticated">New post</a>
+          <a mat-button [routerLink]="['/create']" routerLinkActive="mat-accent"
+               [queryParams]="{ pagesize: currentPageSize , pageindex: currentPageIndex }"
+               [disabled]="!userIsAuthenticated">New post</a>
         </span>
       </li>
       <li>
