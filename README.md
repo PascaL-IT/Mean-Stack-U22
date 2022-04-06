@@ -51,6 +51,17 @@ Link to ![image](https://user-images.githubusercontent.com/36189996/162063732-a2
 This project is generated with Angular CLI version 13+ , express 4+ , mongoose 6+ , mongoose-unique-validator 3+ , multer 1.4+ 
 and other dependencies like rxjs 6+ , typescript 4.5+bcrypt 5+ , body-parser 1.19+ ,  jsonwebtoken 8+ , nodemon 2+ , ...
 
+Environment variables:
+- "MONGO_ATLAS_DB_NAME" : "..." ,
+- "MONGO_ATLAS_CLUSTER_URI" : "..." ,
+- "MONGO_ATLAS_CREDENTIALS" : "..." ,
+- "ACA_ORIGIN" : "*" ,
+- "ACA_HEADERS" : "Origin, X-Requested-With, Content-Type, Accept, Authorization" ,
+- "ACA_METHODS" : "GET, PUT, POST, DELETE" ,
+- "JWT_HS256_KEY" : "..." ,
+- "JWT_ALGO" : "HS256" ,
+- "JWT_EXP_DURATION_SEC" : 3600 ,
+- "PORT" : 3000
 <br>
 
 ## Certificate
