@@ -1,6 +1,6 @@
 # MEAN Stack Course
 
-Guide to build a real "Posts blog" like application with **Angular** for the frontend, 
+Guide to build a real "Posts blog" like application with **Angular** for the frontend (UI, text, image), 
                                                with **Node.js, Express.js, Mongoose** for the backend,
                                                with **MongoDB Atlas** for the database in the cloud.
 
